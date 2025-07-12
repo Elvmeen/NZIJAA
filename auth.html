@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Nzija Delivery Service</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer onerror="handleGoogleScriptError()"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* Ensure proper cursor and interaction */
+        input[type="radio"], input[type="email"], input[type="password"], input[type="text"] {
+            cursor: pointer;
+        }
+        input[type="email"], input[type="password"], input[type="text"] {
+            cursor: text;
+        }
+        button {
+            cursor: pointer;
+        }
+        label {
+            cursor: pointer;
+        }
+        /* Fix for any potential z-index issues */
+        .auth-container {
+            position: relative;
+            z-index: 1;
+        }
+        /* Ensure clickable elements have proper pointer events */
+        * {
+            pointer-events: auto;
+        }
+    </style>
+    <script>
+        function handleGoogleScriptError() {
+            console.warn('Google Sign-In script failed to load');
+            const googleSignIn = document.querySelector('.g_id_signin');
+            if (googleSignIn) {
+                googleSignIn.innerHTML = '<p class="text-gray-500 text-sm">Google Sign-In unavailable. Use traditional login below.</p>';
+            }
+        }
+    </script>
+</head>
+<body class="bg-gradient-to-br from-amber-50 to-orange-100 min-h-screen">
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8">
+            <!-- Header -->
+            <div class="text-center">
+                <div class="mx-auto h-16 w-16 rounded-full bg-amber-500 flex items-center justify-center">
+                    <span class="text-white font-bold text-xl">NDS</span>
+                </div>
+                <h2 class="mt-6 text-3xl font-extrabold text-gray-900">
+                    Welcome to Nzija
+                </h2>
+                <p class="mt-2 text-sm text-gray-600">
+                    Sign in to access your delivery dashboard
+                </p>
+            </div>
+
+            <!-- Auth Container -->
+            <div class="bg-white rounded-xl shadow-lg p-8 space-y-6 auth-container">
+                <!-- Role Selection -->
+                <div class="space-y-4">
+                    <label class="block text-sm font-medium text-gray-700">Select your role:</label>
+                    <div class="grid grid-cols-1 gap-3">
+                        <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 hover:border-amber-300 transition-colors">
+                            <input type="radio" name="role" value="customer" class="mr-3 text-amber-500 cursor-pointer" checked>
+                            <i class="fas fa-user text-blue-500 mr-2"></i>
+                            <span class="font-medium">Customer</span>
+                        </label>
+                        <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 hover:border-amber-300 transition-colors">
+                            <input type="radio" name="role" value="vendor" class="mr-3 text-amber-500 cursor-pointer">
+                            <i class="fas fa-store text-green-500 mr-2"></i>
+                            <span class="font-medium">Restaurant/Vendor</span>
+                        </label>
+                        <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 hover:border-amber-300 transition-colors">
+                            <input type="radio" name="role" value="rider" class="mr-3 text-amber-500 cursor-pointer">
+                            <i class="fas fa-motorcycle text-yellow-500 mr-2"></i>
+                            <span class="font-medium">Delivery Rider</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Google Sign-In Button -->
+                <div class="space-y-4">
+                    <button type="button" id="google-signin-btn" onclick="signInWithGoogle()" 
+                            class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 cursor-pointer transition-colors">
+                        <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        </svg>
+                        Continue with Google
+                    </button>
+
+                    <!-- Divider -->
+                    <div class="relative">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-gray-300"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span class="px-2 bg-white text-gray-500">or continue with email</span>
+                        </div>
+                    </div>
+
+                    <!-- Auth Mode Toggle -->
+                    <div class="flex bg-gray-100 rounded-lg p-1" role="tablist">
+                        <button type="button" id="signin-tab" class="flex-1 text-center py-2 px-4 rounded-md bg-white shadow-sm font-medium text-gray-900 transition-colors cursor-pointer" onclick="switchAuthMode('signin')">
+                            Sign In
+                        </button>
+                        <button type="button" id="signup-tab" class="flex-1 text-center py-2 px-4 rounded-md font-medium text-gray-600 transition-colors cursor-pointer hover:bg-gray-50" onclick="switchAuthMode('signup')">
+                            Sign Up
+                        </button>
+                    </div>
+
+                    <!-- Traditional Auth Form -->
+                    <form id="auth-form" class="space-y-4">
+                        <div id="name-field" class="hidden">
+                            <label for="name" class="block text-sm font-medium text-gray-700">Full Name</label>
+                            <input type="text" id="name" name="name" placeholder="Enter your full name"
+                                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 cursor-text">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                            <input type="email" id="email" name="email" required placeholder="Enter your email"
+                                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 cursor-text">
+                        </div>
+                        <div>
+                            <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                            <input type="password" id="password" name="password" required placeholder="Enter your password"
+                                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 cursor-text">
+                        </div>
+                        <div id="confirm-password-field" class="hidden">
+                            <label for="confirm-password" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+                            <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirm your password"
+                                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 cursor-text">
+                        </div>
+                        <button type="submit" id="auth-submit-btn"
+                                class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 cursor-pointer transition-colors">
+                            Sign In
+                        </button>
+                    </form>
+
+                    <!-- Forgot Password Link -->
+                    <div class="text-center" id="forgot-password-link">
+                        <button type="button" onclick="resetPassword()" class="text-sm text-amber-600 hover:text-amber-500 cursor-pointer">
+                            Forgot your password?
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Back to Home -->
+            <div class="text-center">
+                <a href="/" class="text-amber-600 hover:text-amber-700 font-medium">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-amber-100">
+                    <svg class="animate-spin h-6 w-6 text-amber-600" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg leading-6 font-medium text-gray-900 mt-2">Processing...</h3>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let supabase;
+        let authMode = 'signin';
+
+        // Initialize Supabase
+        async function initializeSupabase() {
+            try {
+                const response = await fetch('/api/supabase-config');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch Supabase config');
+                }
+                
+                const config = await response.json();
+
+                if (config.url && config.anonKey && 
+                    config.url !== 'your_supabase_project_url_here' && 
+                    config.url !== null && 
+                    config.anonKey !== null) {
+                    
+                    supabase = window.supabase.createClient(config.url, config.anonKey);
+                    console.log('✅ Supabase initialized successfully');
+                    console.log('🔗 Supabase URL:', config.url);
+                    
+                    // Test connection with better error handling
+                    try {
+                        const { data, error } = await supabase.auth.getSession();
+                        if (error) {
+                            console.warn('⚠️ Supabase session check failed:', error.message);
+                            showErrorMessage('Authentication service connection issue: ' + error.message);
+                        } else {
+                            console.log('✅ Supabase connection verified');
+                            showSuccessMessage('Authentication service connected successfully!');
+                            setTimeout(() => {
+                                document.querySelector('.bg-green-500')?.remove();
+                            }, 3000);
+                        }
+                    } catch (sessionError) {
+                        console.warn('⚠️ Session test error:', sessionError);
+                    }
+                } else {
+                    console.warn('⚠️ Supabase not configured - missing environment variables');
+                    console.log('📝 Expected: SUPABASE_URL and SUPABASE_ANON_KEY');
+                    showErrorMessage('Authentication service not configured. Please set SUPABASE_URL and SUPABASE_ANON_KEY environment variables.');
+                }
+            } catch (error) {
+                console.error('⚠️ Could not initialize Supabase:', error);
+                showErrorMessage('Failed to connect to authentication service: ' + error.message);
+            }
+        }
+
+        // Switch between sign in and sign up modes
+        function switchAuthMode(mode) {
+            authMode = mode;
+            const signinTab = document.getElementById('signin-tab');
+            const signupTab = document.getElementById('signup-tab');
+            const nameField = document.getElementById('name-field');
+            const confirmPasswordField = document.getElementById('confirm-password-field');
+            const submitBtn = document.getElementById('auth-submit-btn');
+            const forgotPasswordLink = document.getElementById('forgot-password-link');
+
+            if (mode === 'signup') {
+                signinTab.classList.remove('bg-white', 'shadow-sm', 'text-gray-900');
+                signinTab.classList.add('text-gray-600');
+                signupTab.classList.add('bg-white', 'shadow-sm', 'text-gray-900');
+                signupTab.classList.remove('text-gray-600');
+                nameField.classList.remove('hidden');
+                confirmPasswordField.classList.remove('hidden');
+                submitBtn.textContent = 'Sign Up';
+                forgotPasswordLink.classList.add('hidden');
+            } else {
+                signupTab.classList.remove('bg-white', 'shadow-sm', 'text-gray-900');
+                signupTab.classList.add('text-gray-600');
+                signinTab.classList.add('bg-white', 'shadow-sm', 'text-gray-900');
+                signinTab.classList.remove('text-gray-600');
+                nameField.classList.add('hidden');
+                confirmPasswordField.classList.add('hidden');
+                submitBtn.textContent = 'Sign In';
+                forgotPasswordLink.classList.remove('hidden');
+            }
+        }
+
+        // Handle Google credential response
+        async function handleCredentialResponse(response) {
+            showLoading();
+            const selectedRole = document.querySelector('input[name="role"]:checked').value;
+
+            try {
+                if (supabase) {
+                    // Use Supabase Google OAuth
+                    const { data, error } = await supabase.auth.signInWithIdToken({
+                        provider: 'google',
+                        token: response.credential,
+                    });
+
+                    if (error) throw error;
+
+                    // Update user profile with role
+                    if (data.user) {
+                        await supabase.from('user_profiles').upsert({
+                            user_id: data.user.id,
+                            role: selectedRole,
+                            updated_at: new Date().toISOString()
+                        });
+                    }
+
+                    showSuccessMessage('Google sign-in successful!');
+                    setTimeout(() => {
+                        window.location.href = `/${selectedRole}/dashboard.html`;
+                    }, 1500);
+                } else {
+                    // Fallback to server-side Google auth
+                    const serverResponse = await fetch('/auth/google', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ credential: response.credential, role: selectedRole }),
+                    });
+
+                    const data = await serverResponse.json();
+                    if (data.success) {
+                        showSuccessMessage('Google sign-in successful!');
+                        setTimeout(() => {
+                            window.location.href = `/${selectedRole}/dashboard.html`;
+                        }, 1500);
+                    } else {
+                        throw new Error(data.error || 'Authentication failed');
+                    }
+                }
+            } catch (error) {
+                console.error('Google auth error:', error);
+                showErrorMessage('Google authentication failed. Please try again.');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function signInWithGoogle() {
+            showLoading();
+            const selectedRole = document.querySelector('input[name="role"]:checked').value;
+
+            // Store selected role in localStorage for later use
+            localStorage.setItem('userRole', selectedRole);
+
+            try {
+                if (supabase) {
+                    const { data, error } = await supabase.auth.signInWithOAuth({
+                        provider: 'google',
+                        options: {
+                            redirectTo: `${window.location.origin}/auth.html`,
+                            queryParams: {
+                                'role': selectedRole
+                            }
+                        }
+                    });
+
+                    if (error) {
+                        throw error;
+                    }
+
+                    console.log('Redirecting to Google for sign-in...');
+                } else {
+                    console.warn('Supabase not initialized. Google sign-in unavailable.');
+                    showErrorMessage('Google sign-in requires Supabase configuration. Please use email/password sign-in below.');
+                }
+            } catch (error) {
+                console.error('Google sign-in error:', error);
+                showErrorMessage('Failed to sign in with Google. Please try email/password sign-in below.');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Handle traditional authentication
+        document.getElementById('auth-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const name = document.getElementById('name').value.trim();
+            const confirmPassword = document.getElementById('confirm-password').value;
+            const selectedRole = document.querySelector('input[name="role"]:checked').value;
+
+            // Clear any existing error messages
+            document.querySelectorAll('.bg-red-500, .bg-green-500').forEach(el => el.remove());
+
+            // Enhanced validation
+            if (!email || !password) {
+                showErrorMessage('Please enter both email and password');
+                return;
+            }
+
+            if (email.length < 3) {
+                showErrorMessage('Please enter a valid email address');
+                return;
+            }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showErrorMessage('Please enter a valid email address');
+                return;
+            }
+
+            if (password.length < 6) {
+                showErrorMessage('Password must be at least 6 characters long');
+                return;
+            }
+
+            if (!supabase) {
+                showErrorMessage('Authentication service not available. Please check your internet connection and refresh the page.');
+                return;
+            }
+
+            if (authMode === 'signup') {
+                if (!name || name.length < 2) {
+                    showErrorMessage('Please enter your full name (at least 2 characters)');
+                    return;
+                }
+                if (password !== confirmPassword) {
+                    showErrorMessage('Passwords do not match');
+                    return;
+                }
+                if (password.length < 6) {
+                    showErrorMessage('Password must be at least 6 characters long');
+                    return;
+                }
+                if (!/(?=.*[a-zA-Z])(?=.*\d)/.test(password)) {
+                    showErrorMessage('Password must contain at least one letter and one number');
+                    return;
+                }
+            }
+
+            showLoading();
+
+            try {
+                if (supabase) {
+                    let result;
+
+                    if (authMode === 'signup') {
+                        // Sign up with Supabase
+                        console.log('🔐 Attempting to sign up user with role:', selectedRole);
+                        const { data, error } = await supabase.auth.signUp({
+                            email: email,
+                            password: password,
+                            options: {
+                                data: {
+                                    full_name: name,
+                                    role: selectedRole
+                                }
+                            }
+                        });
+
+                        if (error) {
+                            console.error('Sign up error:', error);
+                            if (error.message.includes('already registered') || error.message.includes('already been registered')) {
+                                showErrorMessage('Email already registered. Please sign in instead.');
+                                // Switch to sign in mode
+                                switchAuthMode('signin');
+                                return;
+                            }
+                            if (error.message.includes('password')) {
+                                throw new Error('Password requirements not met. Please use at least 8 characters with uppercase, lowercase, and numbers.');
+                            }
+                            throw new Error(error.message || 'Sign up failed');
+                        }
+
+                        console.log('✅ Sign up successful:', data);
+
+                        if (data.user && !data.user.email_confirmed_at) {
+                            // Create user profile entry
+                            const profileResult = await supabase.from('user_profiles').insert({
+                                user_id: data.user.id,
+                                full_name: name,
+                                role: selectedRole,
+                                is_active: true
+                            });
+
+                            showSuccessMessage('Account created! Please check your email to confirm your account before signing in.');
+                            
+                            // Clear form and switch to signin
+                            document.getElementById('auth-form').reset();
+                            switchAuthMode('signin');
+                            return;
+                        }
+
+                        result = data;
+                    } else {
+                        // Sign in with Supabase
+                        const { data, error } = await supabase.auth.signInWithPassword({
+                            email: email,
+                            password: password,
+                        });
+
+                        if (error) {
+                            if (error.message.includes('Invalid login credentials')) {
+                                showErrorMessage('Invalid email or password. If you don\'t have an account, please click "Sign Up" to create one.');
+                                return;
+                            }
+                            if (error.message.includes('Email not confirmed')) {
+                                showErrorMessage('Please confirm your email address before signing in. Check your email for the confirmation link.');
+                                return;
+                            }
+                            if (error.message.includes('User not found')) {
+                                showErrorMessage('No account found with this email. Please sign up first.');
+                                // Switch to sign up mode
+                                switchAuthMode('signup');
+                                return;
+                            }
+                            throw error;
+                        }
+                        result = data;
+                    }
+
+                    if (result.user) {
+                        // Get or create user profile with role
+                        const { data: profileData, error: profileError } = await supabase
+                            .from('user_profiles')
+                            .select('role')
+                            .eq('user_id', result.user.id)
+                            .single();
+
+                        let userRole = selectedRole;
+                        
+                        if (profileData && profileData.role) {
+                            userRole = profileData.role;
+                        } else {
+                            // Create profile if it doesn't exist
+                            await supabase.from('user_profiles').upsert({
+                                user_id: result.user.id,
+                                full_name: result.user.user_metadata?.full_name || name,
+                                role: selectedRole,
+                                is_active: true,
+                                updated_at: new Date().toISOString()
+                            });
+                        }
+
+                        // Store user session data
+                        localStorage.setItem('userRole', userRole);
+                        localStorage.setItem('userEmail', result.user.email);
+                        localStorage.setItem('userName', result.user.user_metadata?.full_name || name);
+
+                        showSuccessMessage(`${authMode === 'signup' ? 'Account created' : 'Sign in'} successful!`);
+                        
+                        // Redirect based on role
+                        setTimeout(() => {
+                            if (userRole === 'customer') {
+                                window.location.href = '/';
+                            } else {
+                                window.location.href = `/${userRole}/dashboard.html`;
+                            }
+                        }, 1500);
+                    }
+                } else {
+                    throw new Error('Supabase not configured. Please contact administrator.');
+                }
+            } catch (error) {
+                console.error('Auth error:', error);
+                showErrorMessage(error.message || 'Authentication failed. Please try again.');
+            } finally {
+                hideLoading();
+            }
+        });
+
+        // Reset password function
+        async function resetPassword() {
+            const email = document.getElementById('email').value;
+
+            if (!email) {
+                showErrorMessage('Please enter your email address first');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                if (supabase) {
+                    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                        redirectTo: `${window.location.origin}/auth.html`
+                    });
+
+                    if (error) throw error;
+
+                    showSuccessMessage('Password reset email sent! Check your inbox.');
+                } else {
+                    showSuccessMessage('Password reset feature requires Supabase configuration.');
+                }
+            } catch (error) {
+                console.error('Reset password error:', error);
+                showErrorMessage('Failed to send reset email. Please try again.');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Utility functions
+        function showLoading() {
+            document.getElementById('loading-overlay').classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loading-overlay').classList.add('hidden');
+        }
+
+        function showSuccessMessage(message) {
+            const successMsg = document.createElement('div');
+            successMsg.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+            successMsg.innerHTML = `<i class="fas fa-check-circle mr-2"></i>${message}`;
+            document.body.appendChild(successMsg);
+            setTimeout(() => successMsg.remove(), 5000);
+        }
+
+        function showErrorMessage(message) {
+            const errorMsg = document.createElement('div');
+            errorMsg.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+            errorMsg.innerHTML = `<i class="fas fa-exclamation-circle mr-2"></i>${message}`;
+            document.body.appendChild(errorMsg);
+            setTimeout(() => errorMsg.remove(), 5000);
+        }
+
+        // Add input event listeners for better UX
+        function setupInputValidation() {
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const nameInput = document.getElementById('name');
+            const confirmPasswordInput = document.getElementById('confirm-password');
+
+            // Real-time email validation
+            emailInput.addEventListener('blur', function() {
+                const email = this.value.trim();
+                if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    this.classList.add('border-red-500');
+                    this.classList.remove('border-gray-300');
+                } else {
+                    this.classList.remove('border-red-500');
+                    this.classList.add('border-gray-300');
+                }
+            });
+
+            // Real-time password validation
+            passwordInput.addEventListener('input', function() {
+                const password = this.value;
+                if (password.length > 0 && password.length < 6) {
+                    this.classList.add('border-red-500');
+                    this.classList.remove('border-gray-300');
+                } else {
+                    this.classList.remove('border-red-500');
+                    this.classList.add('border-gray-300');
+                }
+            });
+
+            // Confirm password validation
+            if (confirmPasswordInput) {
+                confirmPasswordInput.addEventListener('input', function() {
+                    const password = passwordInput.value;
+                    const confirmPassword = this.value;
+                    if (confirmPassword.length > 0 && password !== confirmPassword) {
+                        this.classList.add('border-red-500');
+                        this.classList.remove('border-gray-300');
+                    } else {
+                        this.classList.remove('border-red-500');
+                        this.classList.add('border-gray-300');
+                    }
+                });
+            }
+        }
+
+        // Initialize on page load
+        window.onload = async function () {
+            await initializeSupabase();
+            setupInputValidation();
+
+            // Focus on email input for better UX
+            document.getElementById('email').focus();
+
+            // Check if user is already authenticated
+            if (supabase) {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session) {
+                    console.log('User already authenticated');
+                    // Redirect to appropriate dashboard based on role
+                    const role = localStorage.getItem('userRole') || 'customer';
+                    if (role === 'customer') {
+                        window.location.href = '/';
+                    } else {
+                        window.location.href = `/${role}/dashboard.html`;
+                    }
+                }
+            }
+        };
+    </script>
+</body>
+</html>

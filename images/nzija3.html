@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#F59E0B">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nzija Delivery Services | Fast Food Delivery in Uganda</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+         .hero-bg {
+            background-image: url('images/nzija-poster.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        .delivery-bike {
+            transition: all 0.3s ease;
+        }
+        .delivery-bike:hover {
+            transform: translateY(-5px);
+        }
+        .food-card:hover {
+            transform: scale(1.03);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .mobile-menu {
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+        .rotate-45 {
+            transform: rotate(45deg);
+        }
+        .rotate-0 {
+            transform: rotate(0);
+        }
+        .opacity-0 {
+            opacity: 0;
+        }
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="font-sans bg-gray-50">
+    <!-- Navigation -->
+ 
+    <a href="#order" class="relative">
+  <i class="fas fa-shopping-cart text-gray-700 hover:text-amber-500 text-xl"></i>
+  <span id="cart-count" class="absolute -top-2 -right-2 bg-amber-500 text-white text-xs rounded-full px-2">0</span>
+</a>
+
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center">
+                <div class="w-12 h-12 rounded-full bg-amber-500 flex items-center justify-center text-white font-bold text-xl mr-3">NDS</div>
+                <a href="#" class="text-xl font-bold text-gray-800">Nzija Delivery Services</a>
+            </div>
+            
+            <div class="hidden md:flex space-x-6">
+                <a href="#home" class="text-gray-700 hover:text-amber-500 transition">Home</a>
+                <a href="#services" class="text-gray-700 hover:text-amber-500 transition">Services</a>
+                <a href="#how-it-works" class="text-gray-700 hover:text-amber-500 transition">How It Works</a>
+                <a href="#pricing" class="text-gray-700 hover:text-amber-500 transition">Pricing</a>
+                <a href="#contact" class="text-gray-700 hover:text-amber-500 transition">Contact</a>
+            </div>
+            
+            <div class="hidden md:block">
+                <a href="#order" class="bg-amber-500 hover:bg-amber-600 text-white px-6 py-2 rounded-lg font-medium transition">Order Now</a>
+            </div>
+            
+            <button id="menu-btn" class="md:hidden focus:outline-none">
+                <i class="fas fa-bars text-2xl text-gray-700"></i>
+            </button>
+        </div>
+    </nav>
+    
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="mobile-menu fixed inset-y-0 right-0 w-64 bg-white shadow-lg z-50 p-4">
+        <button id="close-btn" class="absolute top-4 right-4 focus:outline-none">
+            <i class="fas fa-times text-xl text-gray-700"></i>
+        </button>
+        <div class="mt-12 flex flex-col space-y-6">
+            <a href="#home" class="text-gray-700 hover:text-amber-500 transition border-b pb-2">Home</a>
+            <a href="#services" class="text-gray-700 hover:text-amber-500 transition border-b pb-2">Services</a>
+            <a href="#how-it-works" class="text-gray-700 hover:text-amber-500 transition border-b pb-2">How It Works</a>
+            <a href="#pricing" class="text-gray-700 hover:text-amber-500 transition border-b pb-2">Pricing</a>
+            <a href="#contact" class="text-gray-700 hover:text-amber-500 transition border-b pb-2">Contact</a>
+            <a href="#order" class="bg-amber-500 hover:bg-amber-600 text-white px-6 py-2 rounded-lg font-medium text-center transition">Order Now</a>
+        </div>
+        <div class="absolute bottom-4 left-4 right-4 text-center text-sm text-gray-500">
+            <p>© 2023 Nzija Delivery Services</p>
+        </div>
+    </div>
+    
+    <!-- Hero Section -->
+   <section id="home" class="relative min-h-screen flex items-center text-white bg-cover bg-center" style="background-image: url('images/nzija-poster.jpg');">
+               <div class="absolute inset-0 bg-black bg-opacity-60 z-0"></div>
+
+            <div class="relative container mx-auto px-4 py-20 z-10">
+                <div class="max-w-2xl">
+                    <h1 class="text-4xl md:text-5xl font-bold mb-6">AI-Powered Food & Parcel Delivery Across Uganda</h1>
+                        <p class="text-xl mb-8">Our smart dispatch system connects you with the nearest motorcycle or bicycle rider for fastest delivery. Real-time tracking and tamper-proof packaging guaranteed.</p>
+        
+      <!-- Payment logos -->
+               <div class="flex items-center space-x-4 mb-6">
+                  <img src="icons/mtn.png" alt="MTN Mobile Money" class="h-8 w-auto">
+                     <img src="icons/airtel.png" alt="Airtel Money" class="h-8 w-auto">
+                        <img src="icons/visa.png" alt="Visa" class="h-8 w-auto">
+                  </div>
+
+      <!-- Buttons -->
+                <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                <a href="#order" class="bg-amber-500 hover:bg-amber-600 text-white px-8 py-3 rounded-lg font-medium text-center transition">Order Food/Parcels</a>
+                <a href="#how-it-works" class="border-2 border-white hover:bg-white hover:text-gray-900 px-8 py-3 rounded-lg font-medium text-center transition">How It Works</a>
+                <a href="#" id="track-order" class="bg-white hover:bg-gray-100 text-gray-900 px-8 py-3 rounded-lg font-medium text-center transition flex items-center justify-center">
+                <i class="fas fa-map-marker-alt mr-2"></i> Track Delivery
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Stats Section -->
+    <section class="bg-amber-500 text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-wrap justify-center text-center">
+                <div class="w-full sm:w-1/2 md:w-1/4 px-4 py-4">
+                    <div class="text-4xl font-bold mb-2">500+</div>
+                    <div class="text-lg">Happy Customers</div>
+                </div>
+                <div class="w-full sm:w-1/2 md:w-1/4 px-4 py-4">
+                    <div class="text-4xl font-bold mb-2">50+</div>
+                    <div class="text-lg">Motorcycle & Bike Riders</div>
+                </div>
+                <div class="w-full sm:w-1/2 md:w-1/4 px-4 py-4">
+                    <div class="text-4xl font-bold mb-2">15</div>
+                    <div class="text-lg">Cities Covered</div>
+                </div>
+                <div class="w-full sm:w-1/2 md:w-1/4 px-4 py-4">
+                    <div class="text-4xl font-bold mb-2">30 min</div>
+                    <div class="text-lg">Average Delivery</div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Services Section -->
+    <section id="services" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-16">Our Delivery Services</h2>
+            
+            <div class="flex flex-wrap -mx-4">
+                <!-- Motorcycle Delivery -->
+                <div class="w-full md:w-1/2 lg:w-1/3 px-4 mb-8">
+                    <div class="delivery-bike bg-white rounded-xl shadow-lg overflow-hidden h-full">
+                        <div class="h-48 bg-orange-100 flex items-center justify-center">
+                            <i class="fas fa-motorcycle text-6xl text-amber-500"></i>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-3">Motorcycle Express</h3>
+                            <p class="text-gray-600 mb-4">Our fastest option with professional riders equipped with thermal bags for hot foods. Perfect for quick food deliveries across the city.</p>
+                            <ul class="text-gray-700 space-y-2">
+                                <li class="flex items-center"><i class="fas fa-check-circle text-amber-500 mr-2"></i> Max 15kg payload</li>
+                                <li class="flex items-center"><i class="fas fa-check-circle text-amber-500 mr-2"></i> 20-40 min delivery</li>
+                                <li class="flex items-center"><i class="fas fa-check-circle text-amber-500 mr-2"></i> GPS tracking</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Bicycle Delivery -->
+                <div class="w-full md:w-1/2 lg:w-1/3 px-4 mb-8">
+                    <div class="delivery-bike bg-white rounded-xl shadow-lg overflow-hidden h-full">
+                        <div class="h-48 bg-green-100 flex items-center justify-center">
+                            <i class="fas fa-bicycle text-6xl text-amber-500"></i>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-3">Eco Bike Delivery</h3>
+                            <p class="text-gray-600 mb-4">Environmentally friendly option for shorter distances. Our bike riders are perfect for congested areas and short-distance deliveries.</p>
+                            <ul class="text-gray-700 space-y-2">
+                                <li class="flex items-center"><i class="fas fa-check-circle text-amber-500 mr-2"></i> Max 10kg payload</li>
+                                <li class="flex items-center"><i class="fas fa-check-circle text-amber-500 mr-2"></i> 30-50 min delivery</li>
+                                <li class="flex items-center"><i class="fas fa-check-circle text-amber-500 mr-2"></i> Zero emissions</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Parcel Delivery -->
+                <div class="w-full md:w-1/2 lg:w-1/3 px-4 mb-8">
+                    <div class="delivery-bike bg-white rounded-xl shadow-lg overflow-hidden h-full">
+                        <div class="h-48 bg-purple-100 flex items-center justify-center">
+                            <i class="fas fa-box-open text-6xl text-amber-500"></i>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-3">Parcel Delivery</h3>
+                            <p class="text-gray-600 mb-4">Secure document and package delivery with tamper-proof seals and real-time GPS tracking. Our AI optimizes routes for fastest delivery.</p>
+                            <ul class="text-gray-700 space-y-2">
+                                <li class="flex items-center"><i class="fas fa-check-circle text-amber-500 mr-2"></i> Tamper-proof packaging</li>
+                                <li class="flex items-center"><i class="fas fa-check-circle text-amber-500 mr-2"></i> Real-time tracking</li>
+                                <li class="flex items-center"><i class="fas fa-check-circle text-amber-500 mr-2"></i> Photo proof of delivery</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Bulk Delivery -->
+                <div class="w-full md:w-1/2 lg:w-1/3 px-4 mb-8 mx-auto">
+                    <div class="delivery-bike bg-white rounded-xl shadow-lg overflow-hidden h-full">
+                        <div class="h-48 bg-blue-100 flex items-center justify-center">
+                            <i class="fas fa-shuttle-van text-6xl text-amber-500"></i>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-3">Bulk Delivery</h3>
+                            <p class="text-gray-600 mb-4">For larger orders, we coordinate multiple riders to ensure all your food arrives fresh and on time. Perfect for events or office catering.</p>
+                            <ul class="text-gray-700 space-y-2">
+                                <li class="flex items-center"><i class="fas fa-check-circle text-amber-500 mr-2"></i> No weight limit</li>
+                                <li class="flex items-center"><i class="fas fa-check-circle text-amber-500 mr-2"></i> Coordinated timing</li>
+                                <li class="flex items-center"><i class="fas fa-check-circle text-amber-500 mr-2"></i> Special packaging</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+<!-- Food Categories -->
+<section class="py-16 bg-gray-50">
+  <div class="container mx-auto px-4">
+    <h2 class="text-3xl font-bold text-center mb-12">What We Deliver</h2>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+
+      <!-- Fast Foods -->
+      <div class="food-card bg-white rounded-lg shadow-md overflow-hidden transition cursor-pointer">
+        <div class="h-40 bg-yellow-100 flex items-center justify-center">
+          <i class="fas fa-hamburger text-5xl text-amber-500"></i>
+        </div>
+        <div class="p-4">
+          <h3 class="font-bold text-lg">Fast Foods</h3>
+          <p class="text-gray-600 text-sm">Burgers, fries, pizzas & more</p>
+        </div>
+      </div>
+
+      <!-- Local Meals -->
+      <div class="food-card bg-white rounded-lg shadow-md overflow-hidden transition cursor-pointer">
+        <div class="h-40 bg-teal-100 flex items-center justify-center">
+          <i class="fas fa-utensils text-5xl text-amber-500"></i>
+        </div>
+        <div class="p-4">
+          <h3 class="font-bold text-lg">Local Meals</h3>
+          <p class="text-gray-600 text-sm">Matooke, posho, rice dishes</p>
+        </div>
+      </div>
+
+      <!-- Grilled Meats -->
+      <div class="food-card bg-white rounded-lg shadow-md overflow-hidden transition cursor-pointer">
+        <div class="h-40 bg-red-100 flex items-center justify-center">
+          <i class="fas fa-drumstick-bite text-5xl text-amber-500"></i>
+        </div>
+        <div class="p-4">
+          <h3 class="font-bold text-lg">Grilled Meats</h3>
+          <p class="text-gray-600 text-sm">Pork, chicken, rolex, etc.</p>
+        </div>
+      </div>
+
+      <!-- Beverages -->
+      <div class="food-card bg-white rounded-lg shadow-md overflow-hidden transition cursor-pointer">
+        <div class="h-40 bg-indigo-100 flex items-center justify-center">
+          <i class="fas fa-wine-glass-alt text-5xl text-amber-500"></i>
+        </div>
+        <div class="p-4">
+          <h3 class="font-bold text-lg">Beverages</h3>
+          <p class="text-gray-600 text-sm">Hot & cold drinks of all kinds</p>
+        </div>
+      </div>
+
+      <!-- Grocery Items -->
+      <div class="food-card bg-white rounded-lg shadow-md overflow-hidden transition cursor-pointer">
+        <div class="h-40 bg-blue-100 flex items-center justify-center">
+          <i class="fas fa-store text-5xl text-amber-500"></i>
+        </div>
+        <div class="p-4">
+          <h3 class="font-bold text-lg">Grocery Items</h3>
+          <p class="text-gray-600 text-sm">Select food items from shops</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+    
+   
+    <section id="how-it-works" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-16">How Nzija Delivery Works</h2>
+            
+            <div class="flex flex-col md:flex-row justify-between items-center mb-12">
+                <div class="md:w-1/2 mb-8 md:mb-0 md:pr-8">
+                    <h3 class="text-2xl font-bold mb-4">For Customers</h3>
+                    <div class="space-y-6">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 bg-amber-500 rounded-full w-10 h-10 flex items-center justify-center text-white font-bold mr-4">1</div>
+                            <div>
+                                <h4 class="font-bold text-lg mb-1">Place Your Order</h4>
+                                <p class="text-gray-600">Call us, use our app, or order through our partner restaurants' apps and websites.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 bg-amber-500 rounded-full w-10 h-10 flex items-center justify-center text-white font-bold mr-4">2</div>
+                            <div>
+                                <h4 class="font-bold text-lg mb-1">Our AI Dispatches a Rider</h4>
+                                <p class="text-gray-600">Smart algorithms analyze traffic, distance, and rider locations to assign the optimal delivery partner in seconds.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 bg-amber-500 rounded-full w-10 h-10 flex items-center justify-center text-white font-bold mr-4">3</div>
+                            <div>
+                                <h4 class="font-bold text-lg mb-1">Track Your Delivery</h4>
+                                <p class="text-gray-600">Get real-time updates and tracking information as your food makes its way to you.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 bg-amber-500 rounded-full w-10 h-10 flex items-center justify-center text-white font-bold mr-4">4</div>
+                            <div>
+                                <h4 class="font-bold text-lg mb-1">Enjoy Your Meal</h4>
+                                <p class="text-gray-600">Receive your food hot and fresh, just the way you like it!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="md:w-1/2 md:pl-8">
+                    <div class="bg-gray-100 p-6 rounded-xl">
+                        <h3 class="text-2xl font-bold mb-4">For Restaurants & Shops</h3>
+                        <div class="space-y-6">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 bg-amber-500 rounded-full w-10 h-10 flex items-center justify-center text-white font-bold mr-4">1</div>
+                                <div>
+                                    <h4 class="font-bold text-lg mb-1">Partner With Us</h4>
+                                    <p class="text-gray-600">Register your restaurant or shop to reach more customers through our delivery network.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 bg-amber-500 rounded-full w-10 h-10 flex items-center justify-center text-white font-bold mr-4">2</div>
+                                <div>
+                                    <h4 class="font-bold text-lg mb-1">Receive Orders</h4>
+                                    <p class="text-gray-600">Get delivery orders through our system right in your establishment.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 bg-amber-500 rounded-full w-10 h-10 flex items-center justify-center text-white font-bold mr-4">3</div>
+                                <div>
+                                    <h4 class="font-bold text-lg mb-1">Prepare Order</h4>
+                                    <p class="text-gray-600">Pack the food securely in our provided thermal packaging for freshness.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 bg-amber-500 rounded-full w-10 h-10 flex items-center justify-center text-white font-bold mr-4">4</div>
+                                <div>
+                                    <h4 class="font-bold text-lg mb-1">Hand to Rider</h4>
+                                    <p class="text-gray-600">One of our trained riders will pick up the order promptly for delivery.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-12">
+                <a href="#order" class="bg-amber-500 hover:bg-amber-600 text-white px-8 py-3 rounded-lg font-medium inline-block transition">Join Now</a>
+            </div>
+        </div>
+    </section>
+    
+    
+    <section id="pricing" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-4">Simple, Transparent Pricing</h2>
+            <p class="text-center text-gray-600 mb-12 max-w-2xl mx-auto">We offer competitive rates based on distance and urgency of your food delivery needs.</p>
+            
+            <div class="flex flex-col md:flex-row justify-center -mx-4">
+                <div class="w-full md:w-1/3 px-4 mb-8">
+                    <div class="bg-white rounded-xl shadow-lg p-8 h-full">
+                        <div class="text-center mb-6">
+                            <h3 class="text-2xl font-bold text-amber-500 mb-2">Basic</h3>
+                            <div class="text-4xl font-bold mb-2">10,000 UGX</div>
+                            <div class="text-gray-600">Per delivery</div>
+                        </div>
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Up to 5km delivery radius</li>
+                            <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Standard 15-20 min delivery</li>
+                            <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Basic food packaging</li>
+                            <li class="flex items-center opacity-50"><i class="fas fa-times text-red-500 mr-2"></i> No priority dispatching</li>
+                            <li class="flex items-center opacity-50"><i class="fas fa-times text-red-500 mr-2"></i> No real-time tracking</li>
+                        </ul>
+                        <a href="#order" class="block text-center border-2 border-amber-500 text-amber-500 hover:bg-amber-500 hover:text-white px-6 py-2 rounded-lg font-medium transition">Select Plan</a>
+                    </div>
+                </div>
+                
+                <div class="w-full md:w-1/3 px-4 mb-8">
+                    <div class="bg-white rounded-xl shadow-lg border-2 border-amber-500 p-8 h-full transform scale-105 relative">
+                        <div class="absolute top-0 right-0 bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg">POPULAR</div>
+                        <div class="text-center mb-6">
+                            <h3 class="text-2xl font-bold text-amber-500 mb-2">Express</h3>
+                            <div class="text-4xl font-bold mb-2">15,000 UGX</div>
+                            <div class="text-gray-600">Per delivery</div>
+                        </div>
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Up to 8km delivery radius</li>
+                            <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Fast 25-40 min delivery</li>
+                            <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Thermal packaging included</li>
+                            <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Priority dispatching</li>
+                            <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Real-time tracking</li>
+                        </ul>
+                        <a href="#order" class="block text-center bg-amber-500 hover:bg-amber-600 text-white px-6 py-2 rounded-lg font-medium transition">Select Plan</a>
+                    </div>
+                </div>
+                
+                <div class="w-full md:w-1/3 px-4 mb-8">
+                    <div class="bg-white rounded-xl shadow-lg p-8 h-full">
+                        <div class="text-center mb-6">
+                            <h3 class="text-2xl font-bold text-amber-500 mb-2">Premium</h3>
+                            <div class="text-4xl font-bold mb-2">25,000 UGX</div>
+                            <div class="text-gray-600">Per delivery</div>
+                        </div>
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Up to 15km delivery radius</li>
+                            <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Urgent under 30 min delivery</li>
+                            <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Premium thermal packaging</li>
+                            <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Highest priority dispatch</li>
+                            <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> VIP tracking & notifications</li>
+                        </ul>
+                        <a href="#order" class="block text-center border-2 border-amber-500 text-amber-500 hover:bg-amber-500 hover:text-white px-6 py-2 rounded-lg font-medium transition">Select Plan</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    
+    <section id="order" class="py-20 bg-white">
+        <div class="container mx-auto px-4 max-w-4xl">
+            <h2 class="text-3xl font-bold text-center mb-4">Place Your Order Now</h2>
+            <p class="text-center text-gray-600 mb-12">Fill in the details below and we'll dispatch a rider to your location</p>
+            
+            <form class="bg-gray-50 rounded-xl p-8 shadow-md">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label for="name" class="block text-gray-700 font-medium mb-2">Your Name</label>
+                        <input type="text" id="name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" placeholder="Enter your name">
+                    </div>
+                    <div>
+                        <label for="phone" class="block text-gray-700 font-medium mb-2">Phone Number</label>
+                        <input type="tel" id="phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" placeholder="Enter your phone number">
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <label for="address" class="block text-gray-700 font-medium mb-2">Delivery Address</label>
+                    <input type="text" id="address" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" placeholder="Enter full delivery address">
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label for="restaurant" class="block text-gray-700 font-medium mb-2">Restaurant/Food Shop</label>
+                        <input type="text" id="restaurant" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" placeholder="Where are we picking from?">
+                    </div>
+                    <div>
+                        <label for="time" class="block text-gray-700 font-medium mb-2">Delivery Time</label>
+                        <select id="time" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition">
+                            <option>As soon as possible</option>
+                            <option>Within 30 minutes</option>
+                            <option>Within 1 hour</option>
+                            <option>Schedule for later</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <label for="order-details" class="block text-gray-700 font-medium mb-2">Order Details</label>
+                    <textarea id="order-details" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" placeholder="What are we delivering? Any special instructions?"></textarea>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-gray-700 font-medium mb-2">Delivery Type</label>
+                    <div class="flex flex-wrap gap-4">
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="delivery-type" class="h-5 w-5 text-amber-500 focus:ring-amber-500" checked>
+                            <span class="ml-2 text-gray-700">Motorcycle (2,500 - 4,000 UGX)</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="delivery-type" class="h-5 w-5 text-amber-500 focus:ring-amber-500">
+                            <span class="ml-2 text-gray-700"> Bike Delivery (1,500 - 3,500 UGX)</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-gray-700 font-medium mb-2">Payment Method</label>
+                <div class="grid grid-cols-3 gap-4">
+                <label class="border rounded-lg p-3 flex items-center cursor-pointer hover:border-amber-500">
+                      <input type="radio" name="payment" class="h-5 w-5 text-amber-500 mr-2" checked>
+               <img src="icons/mtn.png" alt="MTN" class="h-6 mr-2">
+                   <span>MTN</span>
+                    </label>
+                       <label class="border rounded-lg p-3 flex items-center cursor-pointer hover:border-amber-500">
+                          <input type="radio" name="payment" class="h-5 w-5 text-amber-500 mr-2">
+                             <img src="icons/airtel.png" alt="Airtel" class="h-6 mr-2">
+                   <span>Airtel</span>
+                     </label>
+                       <label class="border rounded-lg p-3 flex items-center cursor-pointer hover:border-amber-500">
+                          <input type="radio" name="payment" class="h-5 w-5 text-amber-500 mr-2">
+                             <img src="icons/visa.png" alt="Card" class="h-6 mr-2">
+                   <span>Card</span>
+                    </label>
+                </div>
+
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-white px-8 py-3 rounded-lg font-medium transition">Confirm Order</button>
+                </div>
+            </form>
+        </div>
+    </section>
+    
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12">What Our Customers Say</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center text-xl font-bold text-gray-600 mr-4">JB</div>
+                        <div>
+                            <h4 class="font-bold">Joseph B</h4>
+                            <div class="flex text-amber-400">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 italic">"I was skeptical at first about motorcycle food delivery, but Nzijja keeps surprising me. My pizza arrived still piping hot after a 20-minute ride across Kampala. Their thermal bags really work!"</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center text-xl font-bold text-gray-600 mr-4">SM</div>
+                        <div>
+                            <h4 class="font-bold">Sarah M</h4>
+                            <div class="flex text-amber-400">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 italic">"The bike delivery option is my favorite for short distances. It's eco-friendly and the riders are so careful with my orders. I use Nzijja at least 3 times a week for my lunch deliveries to the office."</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center text-xl font-bold text-gray-600 mr-4">AK</div>
+                        <div>
+                            <h4 class="font-bold">Andrew K</h4>
+                            <div class="flex text-amber-400">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 italic">"I run a small restaurant in Entebbe and partnering with Nzija has doubled my takeaway orders. Their riders are professional and always on time. The tracking system gives both me and my customers peace of mind."</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    
+    <section class="py-16 bg-amber-500 text-white">
+        <div class="container mx-auto px-4 max-w-4xl">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="md:w-1/2 mb-6 md:mb-0">
+                    <h3 class="text-2xl font-bold mb-2">Stay Updated</h3>
+                    <p>Subscribe to our newsletter for special offers and updates.</p>
+                </div>
+                <div class="md:w-1/2">
+                    <form class="flex">
+                        <input type="email" placeholder="Your email address" class="flex-grow px-4 py-3 rounded-l-lg focus:outline-none text-gray-900">
+                        <button type="submit" class="bg-gray-900 hover:bg-black px-6 py-3 rounded-r-lg font-medium transition">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+   
+    <section id="contact" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12">Contact Nzija Delivery</h2>
+            
+            <div class="flex flex-col md:flex-row -mx-4">
+                <div class="md:w-1/2 px-4 mb-8">
+                    <div class="bg-gray-50 p-8 rounded-xl h-full">
+                        <h3 class="text-xl font-bold mb-6">Get in Touch</h3>
+                        
+                        <div class="space-y-6">
+                            <div class="flex items-start">
+                                <div class="text-amber-500 mr-4 mt-1">
+                                    <i class="fas fa-map-marker-alt text-2xl"></i>
+                                </div>
+                                <div>    
+                            <div class="flex items-start">
+                                <div class="text-amber-500 mr-4 mt-1">
+                                    <i class="fas fa-phone-alt text-2xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold mb-1">Call Us</h4>
+                                    <p class="text-gray-600">+256 760 282 622 (Business Inquiries)</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="text-amber-500 mr-4 mt-1">
+                                    <i class="fas fa-envelope text-2xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold mb-1">Email Us</h4>
+                                    <p class="text-gray-600">info@nzija.com</p>
+                                    <p class="text-gray-600">support@nzija.com</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="text-amber-500 mr-4 mt-1">
+                                    <i class="fas fa-clock text-2xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold mb-1">Operating Hours</h4>
+                                    <p class="text-gray-600">Monday - Friday: 8:00 AM - 10:00 PM</p>
+                                    <p class="text-gray-600">Saturday - Sunday: 9:00 AM - 11:00 PM</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-8">
+                            <h4 class="font-bold mb-4">Follow Us</h4>
+                            <div class="flex space-x-4">
+                                <a href="#" class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 hover:bg-amber-500 hover:text-white transition">
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
+                                <a href="#" class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 hover:bg-amber-500 hover:text-white transition">
+                                    <i class="fab fa-twitter"></i>
+                                </a>
+                                <a href="#" class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 hover:bg-amber-500 hover:text-white transition">
+                                    <i class="fab fa-instagram"></i>
+                                </a>
+                                <a href="#" class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 hover:bg-amber-500 hover:text-white transition">
+                                    <i class="fab fa-whatsapp"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="md:w-1/2 px-4 mb-8">
+                    <div class="bg-gray-50 p-8 rounded-xl h-full">
+                        <h3 class="text-xl font-bold mb-6">Send Us a Message</h3>
+                        <form>
+                            <div class="mb-4">
+                                <label for="contact-name" class="block text-gray-700 font-medium mb-2">Your Name</label>
+                                <input type="text" id="contact-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition">
+                            </div>
+                            <div class="mb-4">
+                                <label for="contact-email" class="block text-gray-700 font-medium mb-2">Email Address</label>
+                                <input type="email" id="contact-email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition">
+                            </div>
+                            <div class="mb-4">
+                                <label for="contact-subject" class="block text-gray-700 font-medium mb-2">Subject</label>
+                                <input type="text" id="contact-subject" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition">
+                            </div>
+                            <div class="mb-4">
+                                <label for="contact-message" class="block text-gray-700 font-medium mb-2">Message</label>
+                                <textarea id="contact-message" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition"></textarea>
+                            </div>
+                            <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-white px-6 py-2 rounded-lg font-medium transition">Send Message</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+   
+    <section class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h3 class="text-xl font-bold text-center mb-8">Partnered With</h3>
+            <div class="flex flex-wrap justify-center items-center gap-8 md:gap-16">
+                <div class="w-24 h-24 bg-white rounded-lg flex items-center justify-center shadow-md p-4">
+                    <img src="https://via.placeholder.com/80x40?text=Restaurant+1" alt="Partner 1" class="max-w-full max-h-full">
+                </div>
+                <div class="w-24 h-24 bg-white rounded-lg flex items-center justify-center shadow-md p-4">
+                    <img src="https://via.placeholder.com/80x40?text=Cafe+2" alt="Partner 2" class="max-w-full max-h-full">
+                </div>
+                <div class="w-24 h-24 bg-white rounded-lg flex items-center justify-center shadow-md p-4">
+                    <img src="https://via.placeholder.com/80x40?text=Fast+Food" alt="Partner 3" class="max-w-full max-h-full">
+                </div>
+                <div class="w-24 h-24 bg-white rounded-lg flex items-center justify-center shadow-md p-4">
+                    <img src="https://via.placeholder.com/80x40?text=Grocery" alt="Partner 4" class="max-w-full max-h-full">
+                </div>
+                <div class="w-24 h-24 bg-white rounded-lg flex items-center justify-center shadow-md p-4">
+                    <img src="https://via.placeholder.com/80x40?text=Bakery" alt="Partner 5" class="max-w-full max-h-full">
+                </div>
+            </div>
+        </div>
+    </section>
+
+   <section id="login" class="py-20 bg-white">...</section>
+
+    
+    
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between mb-8">
+                <div class="mb-8 md:mb-0">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center text-white font-bold text-lg mr-3">NDS</div>
+                        <a href="#" class="text-xl font-bold">Nzija Delivery Services</a>
+                    </div>
+                    <p class="max-w-xs text-gray-400">Fast, reliable motorcycle and bike delivery services for food and groceries across Uganda.</p>
+                </div>
+                
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-8">
+                    <div>
+                        <h4 class="font-bold text-lg mb-4">Quick Links</h4>
+                        <ul class="space-y-2">
+                            <li><a href="#home" class="text-gray-400 hover:text-amber-500 transition">Home</a></li>
+                            <li><a href="#services" class="text-gray-400 hover:text-amber-500 transition">Services</a></li>
+                            <li><a href="#pricing" class="text-gray-400 hover:text-amber-500 transition">Pricing</a></li>
+                            <li><a href="#contact" class="text-gray-400 hover:text-amber-500 transition">Contact</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-bold text-lg mb-4">Support</h4>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="text-gray-400 hover:text-amber-500 transition">FAQ</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-amber-500 transition">Privacy Policy</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-amber-500 transition">Terms of Service</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-amber-500 transition">Rider Application</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-bold text-lg mb-4">Cities We Serve</h4>
+                        <ul class="space-y-2">
+                            <li class="text-gray-400">Kampala</li>
+                            <li class="text-gray-400">Nkozi</li>
+                            <li class="text-gray-400">Wakiso</li>
+                            <li class="text-gray-400">Entebbe</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="pt-8 border-t border-gray-800">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <p class="text-gray-400 mb-4 md:mb-0">© 2023 Nzijja Delivery Services. All rights reserved.</p>
+                    <div class="flex space-x-6">
+                        <a href="#" class="text-gray-400 hover:text-amber-500 transition"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-amber-500 transition"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-amber-500 transition"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-amber-500 transition"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <div class="fixed bottom-6 right-6 z-50">
+        <a href="#order" class="w-16 h-16 rounded-full bg-amber-500 hover:bg-amber-600 shadow-lg flex items-center justify-center text-white text-2xl transition-transform transform hover:scale-110">
+            <i class="fas fa-biking"></i>
+        </a>
+    </div>
+
+    <script>
+        
+        const menuBtn = document.getElementById('menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const closeBtn = document.getElementById('close-btn');
+        
+        menuBtn.addEventListener('click', () => {
+            mobileMenu.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        });
+        
+        closeBtn.addEventListener('click', () => {
+            mobileMenu.classList.remove('open');
+            document.body.style.overflow = 'auto';
+        });
+        
+        const menuLinks = document.querySelectorAll('#mobile-menu a');
+        menuLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.remove('open');
+                document.body.style.overflow = 'auto';
+            });
+        });
+        
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    
+                    if (mobileMenu.classList.contains('open')) {
+                        mobileMenu.classList.remove('open');
+                        document.body.style.overflow = 'auto';
+                    }
+                }
+            });
+        });
+        
+        
+        function animateOnScroll() {
+            const elements = document.querySelectorAll('.delivery-bike, .food-card');
+            
+            elements.forEach(element => {
+                const elementPosition = element.getBoundingClientRect().top;
+                const screenPosition = window.innerHeight / 1.2;
+                
+                if (elementPosition < screenPosition) {
+                    element.classList.add('animate__animated', 'animate__fadeInUp');
+                }
+            });
+        }
+        
+        window.addEventListener('scroll', animateOnScroll);
+        window.addEventListener('load', animateOnScroll);
+    </script>
+
+    <div id="tracking-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-lg p-6 max-w-md w-full">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">Track Your Delivery</h3>
+                <button id="close-tracking" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-2">Enter Tracking Number</label>
+                <input type="text" placeholder="e.g. NZJ-123456" class="w-full px-4 py-2 border rounded-lg">
+            </div>
+            <div class="bg-gray-100 p-4 rounded-lg mb-4">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="bg-amber-500 text-white rounded-full w-8 h-8 flex items-center justify-center">
+                        <i class="fas fa-biking"></i>
+                    </div>
+                    <div class="flex-1 mx-4">
+                        <div class="h-2 bg-gray-300 rounded-full overflow-hidden">
+                            <div class="h-full bg-amber-500 w-3/4"></div>
+                        </div>
+                    </div>
+                    <div class="text-sm text-gray-500">75% complete</div>
+                </div>
+                <div class="text-sm text-gray-600">Rider Emmanuel is 5 minutes away</div>
+            </div>
+           <div id="map" class="h-64 w-full rounded-lg mb-4"></div>
+           
+           <button class="w-full bg-amber-500 hover:bg-amber-600 text-white py-2 rounded-lg">
+                View Full Details
+            </button>
+        </div>
+    </div>
+
+    <script>
+        
+        const trackBtn = document.getElementById('track-order');
+        const trackingModal = document.getElementById('tracking-modal');
+        const closeTracking = document.getElementById('close-tracking');
+
+        trackBtn.addEventListener('click', () => {
+            trackingModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        });
+
+        closeTracking.addEventListener('click', () => {
+            trackingModal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        });
+    </script>
+    <script>
+  let cart = [];
+
+  function addToCart(item) {
+    cart.push(item);
+    alert(`${item} added to cart`);
+    updateCartCount();
+  }
+
+  function updateCartCount() {
+    const badge = document.getElementById('cart-count');
+    if (badge) badge.innerText = cart.length;
+  }
+ </script>
+<script>
+  function initMap() {
+    const location = { lat: 0.3136, lng: 32.5811 };  
+    const map = new google.maps.Map(document.getElementById("map"), {
+      zoom: 13,
+      center: location,
+    });
+    new google.maps.Marker({ position: location, map: map });
+  }
+</script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap"></script>
+
+  </body>
+
+    </html>

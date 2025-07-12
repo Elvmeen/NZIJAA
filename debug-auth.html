@@ -1,0 +1,204 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth Debug - Nzija Delivery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8">Authentication Debug Panel</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Server Status -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h2 class="text-xl font-semibold mb-4">Server Status</h2>
+                <div id="server-status" class="space-y-2">
+                    <div class="text-gray-600">Checking server...</div>
+                </div>
+                <button onclick="checkServerStatus()" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    Refresh Status
+                </button>
+            </div>
+
+            <!-- Supabase Configuration -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h2 class="text-xl font-semibold mb-4">Supabase Configuration</h2>
+                <div id="supabase-config" class="space-y-2">
+                    <div class="text-gray-600">Checking configuration...</div>
+                </div>
+                <button onclick="checkSupabaseConfig()" class="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                    Test Connection
+                </button>
+            </div>
+
+            <!-- Environment Variables -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h2 class="text-xl font-semibold mb-4">Environment Variables</h2>
+                <div id="env-status" class="space-y-2">
+                    <div class="text-gray-600">Checking environment...</div>
+                </div>
+            </div>
+
+            <!-- Test Authentication -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h2 class="text-xl font-semibold mb-4">Test Authentication</h2>
+                <div class="space-y-4">
+                    <input type="email" id="test-email" placeholder="Test email" class="w-full p-2 border rounded">
+                    <input type="password" id="test-password" placeholder="Test password" class="w-full p-2 border rounded">
+                    <button onclick="testAuth()" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">
+                        Test Sign In
+                    </button>
+                </div>
+                <div id="auth-result" class="mt-4"></div>
+            </div>
+        </div>
+
+        <!-- Logs -->
+        <div class="bg-white p-6 rounded-lg shadow mt-6">
+            <h2 class="text-xl font-semibold mb-4">Debug Logs</h2>
+            <div id="debug-logs" class="bg-gray-900 text-green-400 p-4 rounded font-mono text-sm h-64 overflow-y-auto">
+                <div>Debug panel initialized...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let supabase;
+
+        function log(message) {
+            const logs = document.getElementById('debug-logs');
+            const timestamp = new Date().toLocaleTimeString();
+            logs.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+            logs.scrollTop = logs.scrollHeight;
+        }
+
+        async function checkServerStatus() {
+            try {
+                log('Checking server health...');
+                const response = await fetch('/health');
+                const data = await response.json();
+                
+                document.getElementById('server-status').innerHTML = `
+                    <div class="text-green-600">✅ Server Online</div>
+                    <div class="text-sm text-gray-600">Port: ${data.port}</div>
+                    <div class="text-sm text-gray-600">Time: ${data.timestamp}</div>
+                `;
+                log('Server health check: SUCCESS');
+            } catch (error) {
+                document.getElementById('server-status').innerHTML = `
+                    <div class="text-red-600">❌ Server Offline</div>
+                    <div class="text-sm text-red-600">${error.message}</div>
+                `;
+                log('Server health check: FAILED - ' + error.message);
+            }
+        }
+
+        async function checkSupabaseConfig() {
+            try {
+                log('Checking Supabase configuration...');
+                const response = await fetch('/api/supabase-config');
+                const config = await response.json();
+                
+                const hasUrl = config.url && config.url !== null;
+                const hasKey = config.anonKey && config.anonKey !== null;
+                
+                document.getElementById('supabase-config').innerHTML = `
+                    <div class="${hasUrl ? 'text-green-600' : 'text-red-600'}">
+                        ${hasUrl ? '✅' : '❌'} Supabase URL: ${hasUrl ? 'Configured' : 'Missing'}
+                    </div>
+                    <div class="${hasKey ? 'text-green-600' : 'text-red-600'}">
+                        ${hasKey ? '✅' : '❌'} Anon Key: ${hasKey ? 'Configured' : 'Missing'}
+                    </div>
+                    ${hasUrl ? `<div class="text-xs text-gray-600 mt-2">URL: ${config.url}</div>` : ''}
+                `;
+
+                if (hasUrl && hasKey) {
+                    log('Supabase configuration: COMPLETE');
+                    await testSupabaseConnection(config);
+                } else {
+                    log('Supabase configuration: INCOMPLETE');
+                }
+            } catch (error) {
+                log('Supabase config check: ERROR - ' + error.message);
+            }
+        }
+
+        async function testSupabaseConnection(config) {
+            try {
+                log('Testing Supabase connection...');
+                supabase = window.supabase.createClient(config.url, config.anonKey);
+                
+                const { data, error } = await supabase.auth.getSession();
+                if (error) {
+                    log('Supabase connection test: WARNING - ' + error.message);
+                } else {
+                    log('Supabase connection test: SUCCESS');
+                }
+            } catch (error) {
+                log('Supabase connection test: FAILED - ' + error.message);
+            }
+        }
+
+        async function testAuth() {
+            const email = document.getElementById('test-email').value;
+            const password = document.getElementById('test-password').value;
+            
+            if (!email || !password) {
+                alert('Please enter test email and password');
+                return;
+            }
+
+            if (!supabase) {
+                log('Cannot test auth: Supabase not initialized');
+                return;
+            }
+
+            try {
+                log(`Testing authentication with ${email}...`);
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+                if (error) {
+                    document.getElementById('auth-result').innerHTML = `
+                        <div class="text-red-600">❌ Auth Failed: ${error.message}</div>
+                    `;
+                    log('Auth test: FAILED - ' + error.message);
+                } else {
+                    document.getElementById('auth-result').innerHTML = `
+                        <div class="text-green-600">✅ Auth Success</div>
+                        <div class="text-sm text-gray-600">User: ${data.user.email}</div>
+                    `;
+                    log('Auth test: SUCCESS for ' + data.user.email);
+                }
+            } catch (error) {
+                log('Auth test: ERROR - ' + error.message);
+            }
+        }
+
+        // Initialize on load
+        window.onload = async function() {
+            await checkServerStatus();
+            await checkSupabaseConfig();
+            
+            // Check environment status
+            try {
+                const response = await fetch('/api/test-supabase');
+                const data = await response.json();
+                
+                document.getElementById('env-status').innerHTML = data.success ? 
+                    `<div class="text-green-600">✅ Environment OK</div>` :
+                    `<div class="text-red-600">❌ ${data.error}</div>`;
+            } catch (error) {
+                document.getElementById('env-status').innerHTML = 
+                    `<div class="text-red-600">❌ Environment Check Failed</div>`;
+            }
+        };
+    </script>
+</body>
+</html>
