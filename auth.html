@@ -258,8 +258,9 @@
             }
         }
 
-        // Handle Google credential response
+        // Handle Google credential response - DISABLED FOR NOW
         async function handleCredentialResponse(response) {
+            /* COMMENTED OUT - TO BE IMPLEMENTED LATER
             showLoading();
             const selectedRole = document.querySelector('input[name="role"]:checked').value;
 
@@ -310,9 +311,14 @@
             } finally {
                 hideLoading();
             }
+            */
+            
+            // For now, show message that Google sign-in is not available
+            showErrorMessage('Google sign-in is temporarily disabled. Please use email/password sign-in below.');
         }
 
         async function signInWithGoogle() {
+            /* COMMENTED OUT - TO BE IMPLEMENTED LATER
             showLoading();
             const selectedRole = document.querySelector('input[name="role"]:checked').value;
 
@@ -346,6 +352,10 @@
             } finally {
                 hideLoading();
             }
+            */
+            
+            // For now, show message that Google sign-in is not available
+            showErrorMessage('Google sign-in is temporarily disabled. Please use email/password sign-in below.');
         }
 
         // Handle traditional authentication
