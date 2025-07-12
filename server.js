@@ -7,7 +7,15 @@ const path = require('path');
 const session = require('express-session');
 const { OAuth2Client } = require('google-auth-library');
 const { pool, initializeDatabase } = require('./database');
-const { supabase, supabaseAdmin } = require('./config/supabase');
+// Supabase configuration (hardcoded for static hosting)
+const { createClient } = require('@supabase/supabase-js');
+
+const supabaseUrl = "https://avwdsgyvbvqxrohacvcq.supabase.co";
+const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2d2RzZ3l2YnZxeHJvaGFjdmNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE2OTkyMTMsImV4cCI6MjA2NzI3NTIxM30.F4MapgSz5MlH1Ye9uNndZQGTy0b5oVzXb4co5H-XzoI";
+const supabaseServiceKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2d2RzZ3l2YnZxeHJvaGFjdmNxIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTY5OTIxMywiZXhwIjoyMDY3Mjc1MjEzfQ.yxOoaUnLsHgTM0XXCrM-DA7254MvDFMu95oCnZqVgt8";
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 // Initialize database on startup
 if (process.env.DATABASE_URL && process.env.DATABASE_URL !== 'postgresql://username:password@hostname:port/database') {
@@ -324,38 +332,20 @@ app.get('/api/google-config', (req, res) => {
   });
 });
 
-// Get Supabase configuration
+// Supabase configuration endpoint (hardcoded for static hosting)
 app.get('/api/supabase-config', (req, res) => {
   try {
-    const url = process.env.SUPABASE_URL;
-    const anonKey = process.env.SUPABASE_ANON_KEY;
-    
-    console.log('🔍 Supabase config requested from:', req.get('host'));
-    console.log('📋 URL configured:', url ? '✅ Yes' : '❌ No');
-    console.log('📋 Anon key configured:', anonKey ? '✅ Yes' : '❌ No');
-    
-    if (!url || !anonKey || url === 'your_supabase_project_url_here' || anonKey === 'your_supabase_anon_key_here') {
-      console.warn('⚠️ Supabase environment variables not properly configured');
-      return res.status(400).json({ 
-        error: 'Supabase not configured',
-        message: 'Please set SUPABASE_URL and SUPABASE_ANON_KEY environment variables',
-        configured: false
-      });
-    }
-    
-    res.json({ 
-      url: url,
-      anonKey: anonKey,
+    res.json({
       configured: true,
-      timestamp: new Date().toISOString(),
-      host: req.get('host')
+      url: supabaseUrl,
+      anonKey: supabaseAnonKey
     });
   } catch (error) {
-    console.error('❌ Error in supabase-config endpoint:', error);
-    res.status(500).json({ 
-      error: 'Internal server error',
-      message: error.message,
-      configured: false
+    console.error('Supabase config error:', error);
+    res.status(500).json({
+      configured: false,
+      error: 'Failed to retrieve Supabase configuration',
+      message: error.message
     });
   }
 });
@@ -384,7 +374,7 @@ app.post('/auth/login', async (req, res) => {
 
     // Fallback demo mode warning
     console.warn('⚠️ Supabase not configured - using demo mode');
-    
+
     return res.status(503).json({ 
       success: false, 
       error: 'Authentication service not configured. Please set up Supabase environment variables.' 
@@ -473,7 +463,7 @@ app.get('/api/test-supabase', async (req, res) => {
     if (supabase) {
       // Test basic connection
       const { data, error } = await supabase.auth.getSession();
-      
+
       return res.json({
         success: true,
         message: 'Supabase connection successful',

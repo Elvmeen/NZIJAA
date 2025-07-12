@@ -10,7 +10,7 @@ class NzijaDatabase {
 
         try {
             const SUPABASE_URL = "https://avwdsgyvbvqxrohacvcq.supabase.co";
-            const SUPABASE_ANON_KEY = "your_anon_key_here"; // Replace with your actual anon key
+            const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2d2RzZ3l2YnZxeHJvaGFjdmNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE2OTkyMTMsImV4cCI6MjA2NzI3NTIxM30.F4MapgSz5MlH1Ye9uNndZQGTy0b5oVzXb4co5H-XzoI";
             
             this.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             this.initialized = true;
