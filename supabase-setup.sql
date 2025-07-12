@@ -5,15 +5,37 @@
 -- Create user profiles table
 CREATE TABLE IF NOT EXISTS public.user_profiles (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE NOT NULL,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  email TEXT NOT NULL,
   role VARCHAR(20) NOT NULL DEFAULT 'customer' CHECK (role IN ('customer', 'vendor', 'rider', 'admin')),
   full_name TEXT,
   phone VARCHAR(20),
   address TEXT,
   avatar_url TEXT,
+  
+  -- Customer specific fields
+  preferred_cuisine VARCHAR(50),
+  sms_notifications BOOLEAN DEFAULT true,
+  email_notifications BOOLEAN DEFAULT true,
+  
+  -- Vendor specific fields
+  business_name TEXT,
+  business_address TEXT,
+  business_phone VARCHAR(20),
+  cuisine_type VARCHAR(50),
+  is_verified BOOLEAN DEFAULT false,
+  
+  -- Rider specific fields
+  vehicle_type VARCHAR(20) CHECK (vehicle_type IN ('bicycle', 'motorcycle', 'car')),
+  vehicle_number VARCHAR(50),
+  license_number VARCHAR(50),
+  
   is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  
+  -- Allow multiple profiles per email with different roles
+  UNIQUE(email, role)
 );
 
 -- Create orders table

@@ -245,15 +245,20 @@
         // Load user profile
         async function loadUserProfile() {
             try {
-                const { data: profile, error } = await supabase
+                const userRole = localStorage.getItem('user_role');
+                const { data: profiles, error } = await supabase
                     .from('user_profiles')
                     .select('*')
-                    .eq('user_id', currentUser.id)
-                    .single();
+                    .eq('email', currentUser.email)
+                    .eq('role', userRole);
 
                 if (error) throw error;
 
-                userProfile = profile;
+                if (!profiles || profiles.length === 0) {
+                    throw new Error('Profile not found');
+                }
+
+                userProfile = profiles[0];
                 updateProfileDisplay();
                 setupRoleSpecificSections();
             } catch (error) {
@@ -351,6 +356,9 @@
                                 <i class="fas fa-save mr-2"></i>Update Business Info
                             </button>
                         </form>
+                        <script>
+                            document.getElementById('vendor-form').addEventListener('submit', updateVendorInfo);
+                        </script>
                     `;
                     document.getElementById('menu-section').style.display = 'block';
                     loadMenuItems();
@@ -391,6 +399,9 @@
                                 <i class="fas fa-save mr-2"></i>Update Rider Info
                             </button>
                         </form>
+                        <script>
+                            document.getElementById('rider-form').addEventListener('submit', updateRiderInfo);
+                        </script>
                     `;
                     break;
             }
@@ -402,10 +413,114 @@
             await updateBasicInfo();
         });
 
+        // Add role-specific form handlers
+        async function updateCustomerPreferences() {
+            try {
+                const preferredCuisine = document.getElementById('preferred-cuisine').value;
+                const smsNotifications = document.getElementById('sms-notifications').checked;
+                const emailNotifications = document.getElementById('email-notifications').checked;
+
+                const { error } = await supabase
+                    .from('user_profiles')
+                    .update({
+                        preferred_cuisine: preferredCuisine,
+                        sms_notifications: smsNotifications,
+                        email_notifications: emailNotifications,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', userProfile.id);
+
+                if (error) throw error;
+
+                showSuccessMessage('Customer preferences updated successfully!');
+            } catch (error) {
+                console.error('Error updating customer preferences:', error);
+                showErrorMessage('Failed to update preferences');
+            }
+        }
+
+        async function updateVendorInfo(event) {
+            event.preventDefault();
+            try {
+                const businessName = document.getElementById('business-name').value.trim();
+                const businessAddress = document.getElementById('business-address').value.trim();
+                const businessPhone = document.getElementById('business-phone').value.trim();
+                const cuisineType = document.getElementById('cuisine-type').value;
+
+                if (!businessName) {
+                    showErrorMessage('Business name is required');
+                    return;
+                }
+
+                const { error } = await supabase
+                    .from('user_profiles')
+                    .update({
+                        business_name: businessName,
+                        business_address: businessAddress,
+                        business_phone: businessPhone,
+                        cuisine_type: cuisineType,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', userProfile.id);
+
+                if (error) throw error;
+
+                userProfile.business_name = businessName;
+                userProfile.business_address = businessAddress;
+                userProfile.business_phone = businessPhone;
+                userProfile.cuisine_type = cuisineType;
+
+                showSuccessMessage('Business information updated successfully!');
+            } catch (error) {
+                console.error('Error updating vendor info:', error);
+                showErrorMessage('Failed to update business information');
+            }
+        }
+
+        async function updateRiderInfo(event) {
+            event.preventDefault();
+            try {
+                const vehicleType = document.getElementById('vehicle-type').value;
+                const vehicleNumber = document.getElementById('vehicle-number').value.trim();
+                const licenseNumber = document.getElementById('license-number').value.trim();
+
+                const { error } = await supabase
+                    .from('user_profiles')
+                    .update({
+                        vehicle_type: vehicleType,
+                        vehicle_number: vehicleNumber,
+                        license_number: licenseNumber,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', userProfile.id);
+
+                if (error) throw error;
+
+                userProfile.vehicle_type = vehicleType;
+                userProfile.vehicle_number = vehicleNumber;
+                userProfile.license_number = licenseNumber;
+
+                showSuccessMessage('Rider information updated successfully!');
+            } catch (error) {
+                console.error('Error updating rider info:', error);
+                showErrorMessage('Failed to update rider information');
+            }
+        }
+
         async function updateBasicInfo() {
             try {
-                const fullName = document.getElementById('full-name').value;
-                const phone = document.getElementById('phone').value;
+                const fullName = document.getElementById('full-name').value.trim();
+                const phone = document.getElementById('phone').value.trim();
+
+                if (!fullName || fullName.length < 2) {
+                    showErrorMessage('Please enter a valid full name (at least 2 characters)');
+                    return;
+                }
+
+                if (phone && !/^[\d\+\-\s\(\)]+$/.test(phone)) {
+                    showErrorMessage('Please enter a valid phone number');
+                    return;
+                }
 
                 const { error } = await supabase
                     .from('user_profiles')
@@ -414,7 +529,7 @@
                         phone: phone,
                         updated_at: new Date().toISOString()
                     })
-                    .eq('user_id', currentUser.id);
+                    .eq('id', userProfile.id);
 
                 if (error) throw error;
 
@@ -451,18 +566,75 @@
             const file = event.target.files[0];
             if (!file) return;
 
+            if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                showErrorMessage('File size must be less than 5MB');
+                return;
+            }
+
+            if (!file.type.startsWith('image/')) {
+                showErrorMessage('Please select an image file');
+                return;
+            }
+
             try {
-                // For now, use a placeholder implementation
-                // In a real app, you'd upload to Supabase Storage
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('profile-avatar').src = e.target.result;
-                    showSuccessMessage('Profile picture updated! (Note: This is temporary - implement file upload for persistence)');
-                };
-                reader.readAsDataURL(file);
+                showSuccessMessage('Uploading profile picture...');
+
+                // Upload to Supabase Storage
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${userProfile.id}-${Date.now()}.${fileExt}`;
+                const filePath = `avatars/${fileName}`;
+
+                const { data: uploadData, error: uploadError } = await supabase.storage
+                    .from('profiles')
+                    .upload(filePath, file, { upsert: true });
+
+                if (uploadError) {
+                    console.error('Upload error:', uploadError);
+                    // Fallback to base64 if storage not available
+                    const reader = new FileReader();
+                    reader.onload = async function(e) {
+                        await updateAvatarInDatabase(e.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                    return;
+                }
+
+                // Get public URL
+                const { data: urlData } = supabase.storage
+                    .from('profiles')
+                    .getPublicUrl(filePath);
+
+                await updateAvatarInDatabase(urlData.publicUrl);
+
             } catch (error) {
                 console.error('Error uploading profile picture:', error);
-                showErrorMessage('Failed to upload profile picture');
+                // Fallback to base64
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    await updateAvatarInDatabase(e.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        async function updateAvatarInDatabase(avatarUrl) {
+            try {
+                const { error } = await supabase
+                    .from('user_profiles')
+                    .update({ 
+                        avatar_url: avatarUrl,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', userProfile.id);
+
+                if (error) throw error;
+
+                document.getElementById('profile-avatar').src = avatarUrl;
+                userProfile.avatar_url = avatarUrl;
+                showSuccessMessage('Profile picture updated successfully!');
+            } catch (error) {
+                console.error('Error updating avatar in database:', error);
+                showErrorMessage('Failed to save profile picture');
             }
         }
 
