@@ -1,0 +1,77 @@
+<!-- 🔒 Commented out: Supabase dynamic config fetch (for static HTML hosting) -->
+<!--
+<script>
+    // Supabase setup moved to static config above
+    // let supabase;
+    // let authMode = 'signin';
+
+    // async function initializeSupabase() {
+    //     try {
+    //         console.log('⚙️ Fetching Supabase configuration...');
+    //         const response = await fetch('/api/supabase-config', {
+    //             method: 'GET',
+    //             headers: {
+    //                 'Content-Type': 'application/json'
+    //             }
+    //         });
+    //         
+    //         if (!response.ok) {
+    //             const errorText = await response.text();
+    //             console.error('❌ Supabase config fetch failed:', response.status, errorText);
+    //             throw new Error(`Failed to fetch Supabase config: ${response.status} ${errorText}`);
+    //         }
+    //         
+    //         const config = await response.json();
+    //         console.log('📦 Supabase config received:', {
+    //             configured: config.configured,
+    //             hasUrl: !!config.url,
+    //             hasKey: !!config.anonKey
+    //         });
+
+    //         if (config.configured && config.url && config.anonKey) {
+    //             supabase = window.supabase.createClient(config.url, config.anonKey);
+    //             console.log('✅ Supabase initialized successfully');
+    //             console.log('🔗 Supabase URL:', config.url);
+    //             
+    //             try {
+    //                 const { data, error } = await supabase.auth.getSession();
+    //                 if (error) {
+    //                     console.warn('⚠️ Supabase session check failed:', error.message);
+    //                     showErrorMessage('Authentication service connection issue: ' + error.message);
+    //                 } else {
+    //                     console.log('✅ Supabase connection verified');
+    //                     showSuccessMessage('Authentication service connected successfully!');
+    //                     setTimeout(() => {
+    //                         document.querySelector('.bg-green-500')?.remove();
+    //                     }, 3000);
+    //                 }
+    //             } catch (sessionError) {
+    //                 console.warn('⚠️ Session test error:', sessionError);
+    //             }
+    //         } else {
+    //             console.warn('⚠️ Supabase not configured - missing environment variables');
+    //             console.log('📌 Expected: SUPABASE_URL and SUPABASE_ANON_KEY');
+    //             console.log('📦 Current config:', config);
+    //             
+    //             if (config.error) {
+    //                 showErrorMessage(`Authentication service error: ${config.message || config.error}`);
+    //             } else {
+    //                 showErrorMessage('Authentication service not configured. Please contact administrator.');
+    //             }
+    //         }
+    //     } catch (error) {
+    //         console.error('⚠️ Could not initialize Supabase:', error);
+    //         
+    //         if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+    //             showErrorMessage('Network error: Cannot connect to authentication service. Please check your internet.');
+    //         } else if (error.message.includes('CORS')) {
+    //             showErrorMessage('Cross-origin request blocked. Check CORS settings.');
+    //         } else {
+    //             showErrorMessage('Failed to connect to authentication service: ' + error.message);
+    //         }
+    //     }
+    // }
+
+    // initializeSupabase();
+</script>
+-->
