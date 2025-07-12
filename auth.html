@@ -520,9 +520,13 @@
                         // Redirect based on role
                         setTimeout(() => {
                             if (userRole === 'customer') {
-                                window.location.href = 'index.html';
+                                window.location.href = 'customer/dashboard.html';
+                            } else if (userRole === 'vendor') {
+                                window.location.href = 'vendor/dashboard.html';
+                            } else if (userRole === 'rider') {
+                                window.location.href = 'rider/dashboard.html';
                             } else {
-                                window.location.href = `${userRole}/dashboard.html`;
+                                window.location.href = 'index.html'; // fallback
                             }
                         }, 1500);
                     }
@@ -656,9 +660,13 @@
                     // Redirect to appropriate dashboard based on role
                     const role = localStorage.getItem('userRole') || 'customer';
                     if (role === 'customer') {
-                        window.location.href = 'index.html';
+                        window.location.href = 'customer/dashboard.html';
+                    } else if (role === 'vendor') {
+                        window.location.href = 'vendor/dashboard.html';
+                    } else if (role === 'rider') {
+                        window.location.href = 'rider/dashboard.html';
                     } else {
-                        window.location.href = `${role}/dashboard.html`;
+                        window.location.href = 'index.html';
                     }
                 }
             }
