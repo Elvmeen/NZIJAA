@@ -30,9 +30,15 @@ const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 const corsOptions = {
   origin: process.env.CORS_ORIGIN || true, // Allow all origins in development
   credentials: true,
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 };
 app.use(cors(corsOptions));
+
+// Handle preflight requests explicitly
+app.options('*', cors(corsOptions));
+
 app.use(bodyParser.json());
 // Serve static files (but exclude HTML files that have routes)
 app.use(express.static('.', { 
@@ -328,15 +334,19 @@ app.get('/api/supabase-config', (req, res) => {
     console.log('📋 URL configured:', url ? '✅ Yes' : '❌ No');
     console.log('📋 Anon key configured:', anonKey ? '✅ Yes' : '❌ No');
     
-    // Add CORS headers explicitly
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    if (!url || !anonKey || url === 'your_supabase_project_url_here' || anonKey === 'your_supabase_anon_key_here') {
+      console.warn('⚠️ Supabase environment variables not properly configured');
+      return res.status(400).json({ 
+        error: 'Supabase not configured',
+        message: 'Please set SUPABASE_URL and SUPABASE_ANON_KEY environment variables',
+        configured: false
+      });
+    }
     
     res.json({ 
-      url: url || null,
-      anonKey: anonKey || null,
-      configured: !!(url && anonKey),
+      url: url,
+      anonKey: anonKey,
+      configured: true,
       timestamp: new Date().toISOString(),
       host: req.get('host')
     });
@@ -344,7 +354,8 @@ app.get('/api/supabase-config', (req, res) => {
     console.error('❌ Error in supabase-config endpoint:', error);
     res.status(500).json({ 
       error: 'Internal server error',
-      message: error.message 
+      message: error.message,
+      configured: false
     });
   }
 });

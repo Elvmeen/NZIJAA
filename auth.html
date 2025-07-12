@@ -184,17 +184,28 @@
         // Initialize Supabase
         async function initializeSupabase() {
             try {
-                const response = await fetch('/api/supabase-config');
+                console.log('🔄 Fetching Supabase configuration...');
+                const response = await fetch('/api/supabase-config', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
                 if (!response.ok) {
-                    throw new Error('Failed to fetch Supabase config');
+                    const errorText = await response.text();
+                    console.error('❌ Supabase config fetch failed:', response.status, errorText);
+                    throw new Error(`Failed to fetch Supabase config: ${response.status} ${errorText}`);
                 }
                 
                 const config = await response.json();
+                console.log('📋 Supabase config received:', {
+                    configured: config.configured,
+                    hasUrl: !!config.url,
+                    hasKey: !!config.anonKey
+                });
 
-                if (config.url && config.anonKey && 
-                    config.url !== 'your_supabase_project_url_here' && 
-                    config.url !== null && 
-                    config.anonKey !== null) {
+                if (config.configured && config.url && config.anonKey) {
                     
                     supabase = window.supabase.createClient(config.url, config.anonKey);
                     console.log('✅ Supabase initialized successfully');
@@ -219,11 +230,24 @@
                 } else {
                     console.warn('⚠️ Supabase not configured - missing environment variables');
                     console.log('📝 Expected: SUPABASE_URL and SUPABASE_ANON_KEY');
-                    showErrorMessage('Authentication service not configured. Please set SUPABASE_URL and SUPABASE_ANON_KEY environment variables.');
+                    console.log('📋 Current config:', config);
+                    
+                    if (config.error) {
+                        showErrorMessage(`Authentication service error: ${config.message || config.error}`);
+                    } else {
+                        showErrorMessage('Authentication service not configured. Please contact administrator to set up Supabase environment variables.');
+                    }
                 }
             } catch (error) {
                 console.error('⚠️ Could not initialize Supabase:', error);
-                showErrorMessage('Failed to connect to authentication service: ' + error.message);
+                
+                if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                    showErrorMessage('Network error: Cannot connect to authentication service. Please check your internet connection and refresh the page.');
+                } else if (error.message.includes('CORS')) {
+                    showErrorMessage('Cross-origin request blocked. Please check CORS configuration.');
+                } else {
+                    showErrorMessage('Failed to connect to authentication service: ' + error.message);
+                }
             }
         }
 
