@@ -154,7 +154,7 @@
 
             <!-- Back to Home -->
             <div class="text-center">
-                <a href="/" class="text-amber-600 hover:text-amber-700 font-medium">
+                <a href="index.html" class="text-amber-600 hover:text-amber-700 font-medium">
                     <i class="fas fa-arrow-left mr-2"></i>
                     Back to Home
                 </a>
@@ -178,76 +178,41 @@
     </div>
 
     <script>
+        // Hardcoded Supabase configuration for static hosting
+        const SUPABASE_URL = "https://avwdsgyvbvqxrohacvcq.supabase.co";
+        const SUPABASE_ANON_KEY = "your_anon_key_here";
+        
         let supabase;
         let authMode = 'signin';
 
-        // Initialize Supabase
+        // Initialize Supabase with hardcoded configuration
         async function initializeSupabase() {
             try {
-                console.log('🔄 Fetching Supabase configuration...');
-                const response = await fetch('/api/supabase-config', {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
+                console.log('🔄 Initializing Supabase with static configuration...');
                 
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error('❌ Supabase config fetch failed:', response.status, errorText);
-                    throw new Error(`Failed to fetch Supabase config: ${response.status} ${errorText}`);
-                }
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log('✅ Supabase initialized successfully');
+                console.log('🔗 Supabase URL:', SUPABASE_URL);
                 
-                const config = await response.json();
-                console.log('📋 Supabase config received:', {
-                    configured: config.configured,
-                    hasUrl: !!config.url,
-                    hasKey: !!config.anonKey
-                });
-
-                if (config.configured && config.url && config.anonKey) {
-                    
-                    supabase = window.supabase.createClient(config.url, config.anonKey);
-                    console.log('✅ Supabase initialized successfully');
-                    console.log('🔗 Supabase URL:', config.url);
-                    
-                    // Test connection with better error handling
-                    try {
-                        const { data, error } = await supabase.auth.getSession();
-                        if (error) {
-                            console.warn('⚠️ Supabase session check failed:', error.message);
-                            showErrorMessage('Authentication service connection issue: ' + error.message);
-                        } else {
-                            console.log('✅ Supabase connection verified');
-                            showSuccessMessage('Authentication service connected successfully!');
-                            setTimeout(() => {
-                                document.querySelector('.bg-green-500')?.remove();
-                            }, 3000);
-                        }
-                    } catch (sessionError) {
-                        console.warn('⚠️ Session test error:', sessionError);
-                    }
-                } else {
-                    console.warn('⚠️ Supabase not configured - missing environment variables');
-                    console.log('📝 Expected: SUPABASE_URL and SUPABASE_ANON_KEY');
-                    console.log('📋 Current config:', config);
-                    
-                    if (config.error) {
-                        showErrorMessage(`Authentication service error: ${config.message || config.error}`);
+                // Test connection
+                try {
+                    const { data, error } = await supabase.auth.getSession();
+                    if (error) {
+                        console.warn('⚠️ Supabase session check failed:', error.message);
+                        showErrorMessage('Authentication service connection issue: ' + error.message);
                     } else {
-                        showErrorMessage('Authentication service not configured. Please contact administrator to set up Supabase environment variables.');
+                        console.log('✅ Supabase connection verified');
+                        showSuccessMessage('Authentication service connected successfully!');
+                        setTimeout(() => {
+                            document.querySelector('.bg-green-500')?.remove();
+                        }, 3000);
                     }
+                } catch (sessionError) {
+                    console.warn('⚠️ Session test error:', sessionError);
                 }
             } catch (error) {
                 console.error('⚠️ Could not initialize Supabase:', error);
-                
-                if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-                    showErrorMessage('Network error: Cannot connect to authentication service. Please check your internet connection and refresh the page.');
-                } else if (error.message.includes('CORS')) {
-                    showErrorMessage('Cross-origin request blocked. Please check CORS configuration.');
-                } else {
-                    showErrorMessage('Failed to connect to authentication service: ' + error.message);
-                }
+                showErrorMessage('Failed to connect to authentication service: ' + error.message);
             }
         }
 
@@ -555,9 +520,9 @@
                         // Redirect based on role
                         setTimeout(() => {
                             if (userRole === 'customer') {
-                                window.location.href = '/';
+                                window.location.href = 'index.html';
                             } else {
-                                window.location.href = `/${userRole}/dashboard.html`;
+                                window.location.href = `${userRole}/dashboard.html`;
                             }
                         }, 1500);
                     }
@@ -691,9 +656,9 @@
                     // Redirect to appropriate dashboard based on role
                     const role = localStorage.getItem('userRole') || 'customer';
                     if (role === 'customer') {
-                        window.location.href = '/';
+                        window.location.href = 'index.html';
                     } else {
-                        window.location.href = `/${role}/dashboard.html`;
+                        window.location.href = `${role}/dashboard.html`;
                     }
                 }
             }
