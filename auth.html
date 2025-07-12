@@ -181,7 +181,7 @@
         // Hardcoded Supabase configuration for static hosting
         const SUPABASE_URL = "https://avwdsgyvbvqxrohacvcq.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2d2RzZ3l2YnZxeHJvaGFjdmNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE2OTkyMTMsImV4cCI6MjA2NzI3NTIxM30.F4MapgSz5MlH1Ye9uNndZQGTy0b5oVzXb4co5H-XzoI";
-        
+
         let supabase;
         let authMode = 'signin';
 
@@ -189,11 +189,11 @@
         async function initializeSupabase() {
             try {
                 console.log('🔄 Initializing Supabase with static configuration...');
-                
+
                 supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
                 console.log('✅ Supabase initialized successfully');
                 console.log('🔗 Supabase URL:', SUPABASE_URL);
-                
+
                 // Test connection
                 try {
                     const { data, error } = await supabase.auth.getSession();
@@ -301,7 +301,7 @@
                 hideLoading();
             }
             */
-            
+
             // For now, show message that Google sign-in is not available
             showErrorMessage('Google sign-in is temporarily disabled. Please use email/password sign-in below.');
         }
@@ -342,7 +342,7 @@
                 hideLoading();
             }
             */
-            
+
             // For now, show message that Google sign-in is not available
             showErrorMessage('Google sign-in is temporarily disabled. Please use email/password sign-in below.');
         }
@@ -413,6 +413,23 @@
                     let result;
 
                     if (authMode === 'signup') {
+                        // Check if user already exists with this role
+                        const { data: existingProfiles, error: checkError } = await supabase
+                            .from('user_profiles')
+                            .select('role, full_name')
+                            .eq('email', email);
+
+                        if (existingProfiles && existingProfiles.length > 0) {
+                            const existingRole = existingProfiles.find(profile => profile.role === selectedRole);
+                            if (existingRole) {
+                                showErrorMessage(`You already have a ${selectedRole} account. Please sign in instead or choose a different role.`);
+                                return;
+                            }
+
+                            // User exists but with different role - allow signup for new role
+                            showSuccessMessage(`Creating additional ${selectedRole} account for your existing profile...`);
+                        }
+
                         // Sign up with Supabase
                         console.log('🔐 Attempting to sign up user with role:', selectedRole);
                         const { data, error } = await supabase.auth.signUp({
@@ -429,8 +446,33 @@
                         if (error) {
                             console.error('Sign up error:', error);
                             if (error.message.includes('already registered') || error.message.includes('already been registered')) {
+                                // Check if they want to add a new role to existing account
+                                const confirmNewRole = confirm(`You already have an account. Would you like to add ${selectedRole} role to your existing account?`);
+                                if (confirmNewRole) {
+                                    // Try to sign in and add new role
+                                    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+                                        email: email,
+                                        password: password
+                                    });
+
+                                    if (signInData.user) {
+                                        // Create additional profile for new role
+                                        await supabase.from('user_profiles').insert({
+                                            user_id: signInData.user.id,
+                                            full_name: name,
+                                            role: selectedRole,
+                                            email: email,
+                                            is_active: true
+                                        });
+
+                                        showSuccessMessage(`${selectedRole} role added to your account successfully!`);
+                                        setTimeout(() => {
+                                            window.location.href = `${selectedRole}/dashboard.html`;
+                                        }, 1500);
+                                        return;
+                                    }
+                                }
                                 showErrorMessage('Email already registered. Please sign in instead.');
-                                // Switch to sign in mode
                                 switchAuthMode('signin');
                                 return;
                             }
@@ -452,11 +494,11 @@
                             });
 
                             showSuccessMessage('Account created! Please check your email to confirm your account.');
-                            
+
                             // Store user data for confirmation page
                             localStorage.setItem('pendingUserRole', selectedRole);
                             localStorage.setItem('pendingUserName', name);
-                            
+
                             // Clear form and switch to signin
                             document.getElementById('auth-form').reset();
                             switchAuthMode('signin');
@@ -500,7 +542,7 @@
                             .single();
 
                         let userRole = selectedRole;
-                        
+
                         if (profileData && profileData.role) {
                             userRole = profileData.role;
                         } else {
@@ -520,7 +562,7 @@
                         localStorage.setItem('userName', result.user.user_metadata?.full_name || name);
 
                         showSuccessMessage(`${authMode === 'signup' ? 'Account created' : 'Sign in'} successful!`);
-                        
+
                         // Redirect based on role
                         setTimeout(() => {
                             if (userRole === 'customer') {

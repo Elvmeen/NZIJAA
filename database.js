@@ -13,10 +13,11 @@ async function initializeDatabase() {
   try {
     console.log('Initializing database...');
 
-    // Create orders table
+    // Orders table
     await client.query(`
       CREATE TABLE IF NOT EXISTS orders (
         id SERIAL PRIMARY KEY,
+        tracking_id VARCHAR(50) UNIQUE NOT NULL,
         customer_name VARCHAR(255) NOT NULL,
         customer_phone VARCHAR(20) NOT NULL,
         customer_address TEXT NOT NULL,
@@ -27,9 +28,17 @@ async function initializeDatabase() {
         special_instructions TEXT,
         status VARCHAR(50) DEFAULT 'pending',
         payment_status VARCHAR(50) DEFAULT 'pending',
+        vendor_id INTEGER REFERENCES vendors(id),
+        rider_id INTEGER REFERENCES users(id),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
+    `);
+
+    // Add tracking_id column if it doesn't exist (for existing installations)
+    await client.query(`
+      ALTER TABLE orders 
+      ADD COLUMN IF NOT EXISTS tracking_id VARCHAR(50) UNIQUE
     `);
 
     // Create order tracking table

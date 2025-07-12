@@ -99,6 +99,11 @@ app.get('/debug-auth.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'debug-auth.html'));
 });
 
+// Serve tracking page
+app.get('/track.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'track.html'));
+});
+
 // Serve portal files
 app.get('/customer/dashboard.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'customer', 'dashboard.html'));
@@ -112,12 +117,22 @@ app.get('/rider/dashboard.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'rider', 'dashboard.html'));
 });
 
+// Generate tracking ID
+function generateTrackingId() {
+  const prefix = 'NZJ';
+  const timestamp = Date.now().toString().slice(-6);
+  const random = Math.random().toString(36).substr(2, 4).toUpperCase();
+  return `${prefix}${timestamp}${random}`;
+}
+
 // Handle order submission
 app.post("/order", async (req, res) => {
   if (!process.env.DATABASE_URL || process.env.DATABASE_URL === 'postgresql://username:password@hostname:port/database') {
+    const trackingId = generateTrackingId();
     return res.status(200).json({ 
       message: "Order received successfully! (Demo mode - database not configured)",
       orderId: "DEMO-" + Date.now(),
+      trackingId: trackingId,
       estimatedDelivery: "30-45 minutes"
     });
   }
@@ -136,18 +151,21 @@ app.post("/order", async (req, res) => {
       specialInstructions
     } = req.body;
 
+    // Generate unique tracking ID
+    const trackingId = generateTrackingId();
+
     // Insert new order into database
     const result = await client.query(`
       INSERT INTO orders (
         customer_name, customer_phone, customer_address, 
         delivery_address, items, total_amount, payment_method, 
-        special_instructions, status, payment_status
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'pending', 'pending')
-      RETURNING id, created_at
+        special_instructions, status, payment_status, tracking_id
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'pending', 'pending', $9)
+      RETURNING id, created_at, tracking_id
     `, [
       customerName, customerPhone, customerAddress,
       deliveryAddress, JSON.stringify(items), totalAmount,
-      paymentMethod, specialInstructions
+      paymentMethod, specialInstructions, trackingId
     ]);
 
     const orderId = result.rows[0].id;
@@ -158,11 +176,12 @@ app.post("/order", async (req, res) => {
       VALUES ($1, 'Order Placed', 'Order has been received and is being processed')
     `, [orderId]);
 
-    console.log("New order received:", customerName, "Order ID:", orderId);
+    console.log("New order received:", customerName, "Order ID:", orderId, "Tracking ID:", trackingId);
 
     res.status(201).json({ 
       message: "Order received successfully!",
       orderId: orderId,
+      trackingId: result.rows[0].tracking_id,
       estimatedDelivery: "30-45 minutes"
     });
   } catch (error) {
@@ -233,6 +252,81 @@ app.get("/api/orders/:id", async (req, res) => {
   } catch (error) {
     console.error("Error fetching order:", error);
     res.status(500).json({ error: "Failed to fetch order" });
+  } finally {
+    client.release();
+  }
+});
+
+// Track order by tracking ID
+app.get("/api/track/:trackingId", async (req, res) => {
+  if (!process.env.DATABASE_URL || process.env.DATABASE_URL === 'postgresql://username:password@hostname:port/database') {
+    const trackingId = req.params.trackingId;
+    return res.status(200).json({
+      trackingId: trackingId,
+      status: "In Transit",
+      estimatedDelivery: "25 minutes",
+      currentLocation: "Kampala Central",
+      trackingHistory: [
+        {
+          status: "Order Placed",
+          location: "Restaurant",
+          notes: "Order received and confirmed",
+          timestamp: new Date(Date.now() - 20 * 60 * 1000).toISOString()
+        },
+        {
+          status: "Preparing",
+          location: "Kitchen",
+          notes: "Food is being prepared",
+          timestamp: new Date(Date.now() - 15 * 60 * 1000).toISOString()
+        },
+        {
+          status: "Out for Delivery",
+          location: "On Route",
+          notes: "Rider is on the way",
+          timestamp: new Date(Date.now() - 5 * 60 * 1000).toISOString()
+        }
+      ]
+    });
+  }
+
+  const client = await pool.connect();
+
+  try {
+    const trackingId = req.params.trackingId;
+    const result = await client.query(`
+      SELECT o.*, 
+             array_agg(
+               json_build_object(
+                 'status', ot.status,
+                 'location', ot.location,
+                 'notes', ot.notes,
+                 'timestamp', ot.timestamp
+               ) ORDER BY ot.timestamp
+             ) as tracking_history
+      FROM orders o
+      LEFT JOIN order_tracking ot ON o.id = ot.order_id
+      WHERE o.tracking_id = $1
+      GROUP BY o.id
+    `, [trackingId]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Tracking ID not found" });
+    }
+
+    const order = result.rows[0];
+    res.json({
+      trackingId: order.tracking_id,
+      orderId: order.id,
+      status: order.status,
+      customerName: order.customer_name,
+      deliveryAddress: order.delivery_address,
+      totalAmount: order.total_amount,
+      createdAt: order.created_at,
+      trackingHistory: order.tracking_history.filter(h => h.status !== null)
+    });
+  } catch (error) {
+    console.error("Error tracking order:", error);
+    res.status(500).json({ error: "Failed to track order" });
   } finally {
     client.release();
   }
@@ -438,6 +532,143 @@ app.get('/auth/session', async (req, res) => {
   } catch (error) {
     console.error('Session error:', error);
     res.status(500).json({ error: 'Session verification failed' });
+  }
+});
+
+// Inventory Management Endpoints
+
+// Get vendor inventory
+app.get('/api/vendor/:vendorId/inventory', async (req, res) => {
+  if (!process.env.DATABASE_URL || process.env.DATABASE_URL === 'postgresql://username:password@hostname:port/database') {
+    return res.status(200).json([
+      {
+        id: 1,
+        name: "Rolex",
+        category: "Main Course",
+        price: 3000,
+        stock: 50,
+        isAvailable: true
+      },
+      {
+        id: 2,
+        name: "Chapati",
+        category: "Main Course", 
+        price: 1500,
+        stock: 25,
+        isAvailable: true
+      }
+    ]);
+  }
+
+  const client = await pool.connect();
+  try {
+    const vendorId = req.params.vendorId;
+    const result = await client.query(`
+      SELECT * FROM menu_items 
+      WHERE vendor_id = $1 
+      ORDER BY category, name
+    `, [vendorId]);
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error fetching inventory:", error);
+    res.status(500).json({ error: "Failed to fetch inventory" });
+  } finally {
+    client.release();
+  }
+});
+
+// Add/Update inventory item
+app.post('/api/vendor/:vendorId/inventory', async (req, res) => {
+  if (!process.env.DATABASE_URL || process.env.DATABASE_URL === 'postgresql://username:password@hostname:port/database') {
+    return res.status(200).json({ 
+      message: "Item added successfully (Demo mode)",
+      id: Date.now()
+    });
+  }
+
+  const client = await pool.connect();
+  try {
+    const vendorId = req.params.vendorId;
+    const { name, description, price, category, stock, isAvailable } = req.body;
+
+    const result = await client.query(`
+      INSERT INTO menu_items (vendor_id, name, description, price, category, stock, is_available)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING *
+    `, [vendorId, name, description, price, category, stock || 0, isAvailable !== false]);
+
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error("Error adding inventory item:", error);
+    res.status(500).json({ error: "Failed to add inventory item" });
+  } finally {
+    client.release();
+  }
+});
+
+// Update inventory item
+app.put('/api/vendor/:vendorId/inventory/:itemId', async (req, res) => {
+  if (!process.env.DATABASE_URL || process.env.DATABASE_URL === 'postgresql://username:password@hostname:port/database') {
+    return res.status(200).json({ 
+      message: "Item updated successfully (Demo mode)"
+    });
+  }
+
+  const client = await pool.connect();
+  try {
+    const { vendorId, itemId } = req.params;
+    const { name, description, price, category, stock, isAvailable } = req.body;
+
+    const result = await client.query(`
+      UPDATE menu_items 
+      SET name = $1, description = $2, price = $3, category = $4, 
+          stock = $5, is_available = $6, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $7 AND vendor_id = $8
+      RETURNING *
+    `, [name, description, price, category, stock, isAvailable, itemId, vendorId]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Item not found" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Error updating inventory item:", error);
+    res.status(500).json({ error: "Failed to update inventory item" });
+  } finally {
+    client.release();
+  }
+});
+
+// Delete inventory item
+app.delete('/api/vendor/:vendorId/inventory/:itemId', async (req, res) => {
+  if (!process.env.DATABASE_URL || process.env.DATABASE_URL === 'postgresql://username:password@hostname:port/database') {
+    return res.status(200).json({ 
+      message: "Item deleted successfully (Demo mode)"
+    });
+  }
+
+  const client = await pool.connect();
+  try {
+    const { vendorId, itemId } = req.params;
+
+    const result = await client.query(`
+      DELETE FROM menu_items 
+      WHERE id = $1 AND vendor_id = $2
+      RETURNING *
+    `, [itemId, vendorId]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Item not found" });
+    }
+
+    res.json({ message: "Item deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting inventory item:", error);
+    res.status(500).json({ error: "Failed to delete inventory item" });
+  } finally {
+    client.release();
   }
 });
 
