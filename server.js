@@ -26,7 +26,13 @@ if (!GOOGLE_CLIENT_ID) {
 }
 const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
-app.use(cors());
+// Configure CORS for external hosting
+const corsOptions = {
+  origin: process.env.CORS_ORIGIN || true, // Allow all origins in development
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
 app.use(bodyParser.json());
 // Serve static files (but exclude HTML files that have routes)
 app.use(express.static('.', { 
@@ -314,18 +320,33 @@ app.get('/api/google-config', (req, res) => {
 
 // Get Supabase configuration
 app.get('/api/supabase-config', (req, res) => {
-  const url = process.env.SUPABASE_URL;
-  const anonKey = process.env.SUPABASE_ANON_KEY;
-  
-  console.log('🔍 Supabase config requested');
-  console.log('📋 URL configured:', url ? '✅ Yes' : '❌ No');
-  console.log('📋 Anon key configured:', anonKey ? '✅ Yes' : '❌ No');
-  
-  res.json({ 
-    url: url || null,
-    anonKey: anonKey || null,
-    configured: !!(url && anonKey)
-  });
+  try {
+    const url = process.env.SUPABASE_URL;
+    const anonKey = process.env.SUPABASE_ANON_KEY;
+    
+    console.log('🔍 Supabase config requested from:', req.get('host'));
+    console.log('📋 URL configured:', url ? '✅ Yes' : '❌ No');
+    console.log('📋 Anon key configured:', anonKey ? '✅ Yes' : '❌ No');
+    
+    // Add CORS headers explicitly
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    
+    res.json({ 
+      url: url || null,
+      anonKey: anonKey || null,
+      configured: !!(url && anonKey),
+      timestamp: new Date().toISOString(),
+      host: req.get('host')
+    });
+  } catch (error) {
+    console.error('❌ Error in supabase-config endpoint:', error);
+    res.status(500).json({ 
+      error: 'Internal server error',
+      message: error.message 
+    });
+  }
 });
 
 // Traditional login endpoint (fallback when Supabase not configured)
