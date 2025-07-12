@@ -84,6 +84,16 @@ app.get('/auth.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'auth.html'));
 });
 
+// Serve confirmation success page
+app.get('/confirmation-success.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'confirmation-success.html'));
+});
+
+// Serve profile management page
+app.get('/profile.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'profile.html'));
+});
+
 // Serve debug authentication page
 app.get('/debug-auth.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'debug-auth.html'));

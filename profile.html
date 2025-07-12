@@ -1,0 +1,590 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Settings - Nzija Delivery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center text-white font-bold mr-3">NDS</div>
+                    <h1 class="text-xl font-bold text-gray-800">Profile Settings</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="goBackToDashboard()" class="text-amber-600 hover:text-amber-700">
+                        <i class="fas fa-arrow-left mr-1"></i> Back to Dashboard
+                    </button>
+                    <button onclick="signOut()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm">
+                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- Profile Header -->
+            <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+                <div class="flex items-center space-x-6">
+                    <div class="relative">
+                        <img id="profile-avatar" src="https://via.placeholder.com/100" 
+                             class="w-24 h-24 rounded-full object-cover border-4 border-amber-200" alt="Profile Picture">
+                        <button onclick="changeProfilePicture()" 
+                                class="absolute bottom-0 right-0 bg-amber-500 hover:bg-amber-600 text-white rounded-full w-8 h-8 flex items-center justify-center">
+                            <i class="fas fa-camera text-sm"></i>
+                        </button>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800" id="profile-name">Loading...</h2>
+                        <p class="text-gray-600" id="profile-role">Loading...</p>
+                        <p class="text-gray-500 text-sm" id="profile-email">Loading...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Form -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Basic Information -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6">Basic Information</h3>
+                    <form id="basic-info-form" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                            <input type="text" id="full-name" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                            <input type="tel" id="phone" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                            <input type="email" id="email" disabled
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed">
+                        </div>
+                        <button type="submit" 
+                                class="w-full bg-amber-500 hover:bg-amber-600 text-white py-2 rounded-lg font-medium">
+                            <i class="fas fa-save mr-2"></i>Update Basic Info
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Role-Specific Information -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6" id="role-section-title">Role Information</h3>
+                    <div id="role-specific-form">
+                        <!-- Content will be populated based on user role -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Address Management (for customers) -->
+            <div id="address-section" class="bg-white rounded-xl shadow-md p-6 mt-8" style="display: none;">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold text-gray-800">Delivery Addresses</h3>
+                    <button onclick="addNewAddress()" 
+                            class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg">
+                        <i class="fas fa-plus mr-1"></i> Add Address
+                    </button>
+                </div>
+                <div id="addresses-list" class="space-y-4">
+                    <!-- Addresses will be populated here -->
+                </div>
+            </div>
+
+            <!-- Menu Management (for vendors) -->
+            <div id="menu-section" class="bg-white rounded-xl shadow-md p-6 mt-8" style="display: none;">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold text-gray-800">Menu Management</h3>
+                    <button onclick="addMenuItem()" 
+                            class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg">
+                        <i class="fas fa-plus mr-1"></i> Add Menu Item
+                    </button>
+                </div>
+                <div id="menu-items-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Menu items will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for adding/editing addresses -->
+    <div id="address-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-medium text-gray-900 mb-4" id="address-modal-title">Add New Address</h3>
+                <form id="address-form" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Address Label</label>
+                        <input type="text" id="address-label" placeholder="e.g., Home, Office" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Full Address</label>
+                        <textarea id="address-text" rows="3" placeholder="Enter complete address" 
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"></textarea>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="is-default" class="mr-2">
+                        <label for="is-default" class="text-sm text-gray-700">Set as default address</label>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button type="submit" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white py-2 rounded-lg">
+                            Save Address
+                        </button>
+                        <button type="button" onclick="closeAddressModal()" 
+                                class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 rounded-lg">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for adding/editing menu items -->
+    <div id="menu-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-medium text-gray-900 mb-4" id="menu-modal-title">Add Menu Item</h3>
+                <form id="menu-form" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Item Name</label>
+                        <input type="text" id="item-name" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                        <textarea id="item-description" rows="2" 
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Price (UGX)</label>
+                        <input type="number" id="item-price" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                        <select id="item-category" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500">
+                            <option value="main">Main Course</option>
+                            <option value="appetizer">Appetizer</option>
+                            <option value="dessert">Dessert</option>
+                            <option value="beverage">Beverage</option>
+                            <option value="snack">Snack</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="is-available" checked class="mr-2">
+                        <label for="is-available" class="text-sm text-gray-700">Available for order</label>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button type="submit" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white py-2 rounded-lg">
+                            Save Item
+                        </button>
+                        <button type="button" onclick="closeMenuModal()" 
+                                class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 rounded-lg">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Hardcoded Supabase configuration
+        const SUPABASE_URL = "https://avwdsgyvbvqxrohacvcq.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2d2RzZ3l2YnZxeHJvaGFjdmNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE2OTkyMTMsImV4cCI6MjA2NzI3NTIxM30.F4MapgSz5MlH1Ye9uNndZQGTy0b5oVzXb4co5H-XzoI";
+
+        let supabase;
+        let currentUser = null;
+        let userProfile = null;
+        let currentEditingAddress = null;
+        let currentEditingMenuItem = null;
+
+        // Initialize Supabase
+        async function initializeSupabase() {
+            try {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log('✅ Supabase initialized for profile page');
+                await checkAuthentication();
+            } catch (error) {
+                console.error('Failed to initialize Supabase:', error);
+                window.location.href = 'auth.html';
+            }
+        }
+
+        // Check authentication and load profile
+        async function checkAuthentication() {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (!session) {
+                    window.location.href = 'auth.html';
+                    return;
+                }
+
+                currentUser = session.user;
+                await loadUserProfile();
+            } catch (error) {
+                console.error('Authentication check failed:', error);
+                window.location.href = 'auth.html';
+            }
+        }
+
+        // Load user profile
+        async function loadUserProfile() {
+            try {
+                const { data: profile, error } = await supabase
+                    .from('user_profiles')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .single();
+
+                if (error) throw error;
+
+                userProfile = profile;
+                updateProfileDisplay();
+                setupRoleSpecificSections();
+            } catch (error) {
+                console.error('Failed to load profile:', error);
+                showErrorMessage('Failed to load profile data');
+            }
+        }
+
+        // Update profile display
+        function updateProfileDisplay() {
+            if (!userProfile) return;
+
+            document.getElementById('profile-name').textContent = userProfile.full_name || 'No name set';
+            document.getElementById('profile-role').textContent = userProfile.role.charAt(0).toUpperCase() + userProfile.role.slice(1);
+            document.getElementById('profile-email').textContent = currentUser.email;
+
+            // Update form fields
+            document.getElementById('full-name').value = userProfile.full_name || '';
+            document.getElementById('phone').value = userProfile.phone || '';
+            document.getElementById('email').value = currentUser.email;
+
+            // Update avatar
+            if (userProfile.avatar_url) {
+                document.getElementById('profile-avatar').src = userProfile.avatar_url;
+            }
+        }
+
+        // Setup role-specific sections
+        function setupRoleSpecificSections() {
+            const roleForm = document.getElementById('role-specific-form');
+            const roleTitle = document.getElementById('role-section-title');
+
+            switch (userProfile.role) {
+                case 'customer':
+                    roleTitle.textContent = 'Customer Preferences';
+                    roleForm.innerHTML = `
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Preferred Cuisine</label>
+                                <select id="preferred-cuisine" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500">
+                                    <option value="">Select preference</option>
+                                    <option value="local">Local Cuisine</option>
+                                    <option value="fast-food">Fast Food</option>
+                                    <option value="continental">Continental</option>
+                                    <option value="asian">Asian</option>
+                                    <option value="indian">Indian</option>
+                                </select>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="sms-notifications" class="mr-2">
+                                <label for="sms-notifications" class="text-sm text-gray-700">Receive SMS notifications</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="email-notifications" class="mr-2">
+                                <label for="email-notifications" class="text-sm text-gray-700">Receive email notifications</label>
+                            </div>
+                            <button type="button" onclick="updateCustomerPreferences()" class="w-full bg-amber-500 hover:bg-amber-600 text-white py-2 rounded-lg font-medium">
+                                <i class="fas fa-save mr-2"></i>Update Preferences
+                            </button>
+                        </div>
+                    `;
+                    document.getElementById('address-section').style.display = 'block';
+                    loadAddresses();
+                    break;
+
+                case 'vendor':
+                    roleTitle.textContent = 'Business Information';
+                    roleForm.innerHTML = `
+                        <form id="vendor-form" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Business Name</label>
+                                <input type="text" id="business-name" value="${userProfile.business_name || ''}"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Business Address</label>
+                                <textarea id="business-address" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500">${userProfile.business_address || ''}</textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Business Phone</label>
+                                <input type="tel" id="business-phone" value="${userProfile.business_phone || ''}"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Cuisine Type</label>
+                                <select id="cuisine-type" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500">
+                                    <option value="local">Local Cuisine</option>
+                                    <option value="fast-food">Fast Food</option>
+                                    <option value="continental">Continental</option>
+                                    <option value="asian">Asian</option>
+                                    <option value="indian">Indian</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-white py-2 rounded-lg font-medium">
+                                <i class="fas fa-save mr-2"></i>Update Business Info
+                            </button>
+                        </form>
+                    `;
+                    document.getElementById('menu-section').style.display = 'block';
+                    loadMenuItems();
+                    break;
+
+                case 'rider':
+                    roleTitle.textContent = 'Rider Information';
+                    roleForm.innerHTML = `
+                        <form id="rider-form" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Vehicle Type</label>
+                                <select id="vehicle-type" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500">
+                                    <option value="bicycle">Bicycle</option>
+                                    <option value="motorcycle">Motorcycle</option>
+                                    <option value="car">Car</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Vehicle Number</label>
+                                <input type="text" id="vehicle-number" value="${userProfile.vehicle_number || ''}"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">License Number</label>
+                                <input type="text" id="license-number" value="${userProfile.license_number || ''}"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-amber-500 focus:border-amber-500">
+                            </div>
+                            <div class="bg-yellow-50 p-3 rounded-lg">
+                                <div class="flex items-center">
+                                    <i class="fas fa-shield-alt text-yellow-600 mr-2"></i>
+                                    <span class="text-sm font-medium">Verification Status: </span>
+                                    <span class="text-sm ${userProfile.is_verified ? 'text-green-600' : 'text-yellow-600'} ml-1">
+                                        ${userProfile.is_verified ? 'Verified' : 'Pending Verification'}
+                                    </span>
+                                </div>
+                            </div>
+                            <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-white py-2 rounded-lg font-medium">
+                                <i class="fas fa-save mr-2"></i>Update Rider Info
+                            </button>
+                        </form>
+                    `;
+                    break;
+            }
+        }
+
+        // Form submission handlers
+        document.getElementById('basic-info-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            await updateBasicInfo();
+        });
+
+        async function updateBasicInfo() {
+            try {
+                const fullName = document.getElementById('full-name').value;
+                const phone = document.getElementById('phone').value;
+
+                const { error } = await supabase
+                    .from('user_profiles')
+                    .update({
+                        full_name: fullName,
+                        phone: phone,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('user_id', currentUser.id);
+
+                if (error) throw error;
+
+                userProfile.full_name = fullName;
+                userProfile.phone = phone;
+                updateProfileDisplay();
+                showSuccessMessage('Basic information updated successfully!');
+            } catch (error) {
+                console.error('Error updating basic info:', error);
+                showErrorMessage('Failed to update basic information');
+            }
+        }
+
+        // Utility functions
+        function goBackToDashboard() {
+            window.location.href = `${userProfile.role}/dashboard.html`;
+        }
+
+        async function signOut() {
+            await supabase.auth.signOut();
+            window.location.href = 'auth.html';
+        }
+
+        function changeProfilePicture() {
+            // Create file input
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = handleProfilePictureUpload;
+            input.click();
+        }
+
+        async function handleProfilePictureUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            try {
+                // For now, use a placeholder implementation
+                // In a real app, you'd upload to Supabase Storage
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('profile-avatar').src = e.target.result;
+                    showSuccessMessage('Profile picture updated! (Note: This is temporary - implement file upload for persistence)');
+                };
+                reader.readAsDataURL(file);
+            } catch (error) {
+                console.error('Error uploading profile picture:', error);
+                showErrorMessage('Failed to upload profile picture');
+            }
+        }
+
+        // Address management functions
+        async function loadAddresses() {
+            // For now, use sample data - implement with real database
+            const sampleAddresses = [
+                { id: 1, label: 'Home', address: '123 Kampala Road, Kampala', is_default: true },
+                { id: 2, label: 'Office', address: '456 Business Park, Nakawa', is_default: false }
+            ];
+            displayAddresses(sampleAddresses);
+        }
+
+        function displayAddresses(addresses) {
+            const container = document.getElementById('addresses-list');
+            container.innerHTML = addresses.map(addr => `
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h4 class="font-medium text-gray-800">${addr.label}</h4>
+                            <p class="text-sm text-gray-600">${addr.address}</p>
+                            ${addr.is_default ? '<span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Default</span>' : ''}
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="editAddress(${addr.id})" class="text-blue-600 hover:text-blue-800">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteAddress(${addr.id})" class="text-red-600 hover:text-red-800">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Menu management functions
+        async function loadMenuItems() {
+            // For now, use sample data - implement with real database
+            const sampleMenu = [
+                { id: 1, name: 'Chicken Burger', description: 'Juicy chicken burger', price: 7500, category: 'main', is_available: true },
+                { id: 2, name: 'French Fries', description: 'Crispy golden fries', price: 4000, category: 'snack', is_available: true }
+            ];
+            displayMenuItems(sampleMenu);
+        }
+
+        function displayMenuItems(items) {
+            const container = document.getElementById('menu-items-list');
+            container.innerHTML = items.map(item => `
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="font-medium text-gray-800">${item.name}</h4>
+                        <span class="bg-${item.is_available ? 'green' : 'red'}-100 text-${item.is_available ? 'green' : 'red'}-800 text-xs px-2 py-1 rounded-full">
+                            ${item.is_available ? 'Available' : 'Unavailable'}
+                        </span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-2">${item.description}</p>
+                    <p class="font-bold text-amber-600 mb-3">${item.price.toLocaleString()} UGX</p>
+                    <div class="flex space-x-2">
+                        <button onclick="editMenuItem(${item.id})" class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-600 px-2 py-1 rounded">
+                            Edit
+                        </button>
+                        <button onclick="toggleMenuItemAvailability(${item.id})" class="text-xs bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded">
+                            ${item.is_available ? 'Disable' : 'Enable'}
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Modal functions
+        function addNewAddress() {
+            currentEditingAddress = null;
+            document.getElementById('address-modal-title').textContent = 'Add New Address';
+            document.getElementById('address-form').reset();
+            document.getElementById('address-modal').classList.remove('hidden');
+        }
+
+        function editAddress(id) {
+            // Implementation for editing address
+            console.log('Edit address:', id);
+        }
+
+        function closeAddressModal() {
+            document.getElementById('address-modal').classList.add('hidden');
+        }
+
+        function addMenuItem() {
+            currentEditingMenuItem = null;
+            document.getElementById('menu-modal-title').textContent = 'Add Menu Item';
+            document.getElementById('menu-form').reset();
+            document.getElementById('menu-modal').classList.remove('hidden');
+        }
+
+        function editMenuItem(id) {
+            // Implementation for editing menu item
+            console.log('Edit menu item:', id);
+        }
+
+        function closeMenuModal() {
+            document.getElementById('menu-modal').classList.add('hidden');
+        }
+
+        // Utility functions
+        function showSuccessMessage(message) {
+            const successMsg = document.createElement('div');
+            successMsg.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+            successMsg.innerHTML = `<i class="fas fa-check-circle mr-2"></i>${message}`;
+            document.body.appendChild(successMsg);
+            setTimeout(() => successMsg.remove(), 5000);
+        }
+
+        function showErrorMessage(message) {
+            const errorMsg = document.createElement('div');
+            errorMsg.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+            errorMsg.innerHTML = `<i class="fas fa-exclamation-circle mr-2"></i>${message}`;
+            document.body.appendChild(errorMsg);
+            setTimeout(() => errorMsg.remove(), 5000);
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', initializeSupabase);
+    </script>
+</body>
+</html>

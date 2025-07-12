@@ -1,0 +1,192 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Confirmed - Nzija Delivery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-gradient-to-br from-green-50 to-blue-100 min-h-screen">
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8">
+            <!-- Success Icon -->
+            <div class="text-center">
+                <div class="mx-auto h-20 w-20 rounded-full bg-green-500 flex items-center justify-center mb-6">
+                    <i class="fas fa-check text-white text-3xl"></i>
+                </div>
+                <h2 class="text-3xl font-extrabold text-gray-900">
+                    Account Confirmed!
+                </h2>
+                <p class="mt-2 text-sm text-gray-600" id="account-type-message">
+                    Your account has been successfully verified.
+                </p>
+            </div>
+
+            <!-- Account Details -->
+            <div class="bg-white rounded-xl shadow-lg p-8 space-y-6">
+                <div class="text-center">
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-user text-white text-2xl" id="role-icon"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800" id="welcome-message">Welcome to Nzija!</h3>
+                    <p class="text-gray-600 mt-2" id="role-description">Loading account details...</p>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-medium text-gray-800 mb-2">What's Next?</h4>
+                        <ul class="text-sm text-gray-600 space-y-1" id="next-steps">
+                            <li>• Complete your profile setup</li>
+                            <li>• Explore the dashboard</li>
+                            <li>• Get started with Nzija!</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <button onclick="goToDashboard()" 
+                        class="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white py-3 rounded-lg font-medium transition-all duration-200">
+                    <i class="fas fa-arrow-right mr-2"></i>
+                    Go to Dashboard
+                </button>
+
+                <div class="text-center">
+                    <a href="auth.html" class="text-amber-600 hover:text-amber-700 text-sm">
+                        <i class="fas fa-arrow-left mr-1"></i>
+                        Back to Sign In
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Hardcoded Supabase configuration
+        const SUPABASE_URL = "https://avwdsgyvbvqxrohacvcq.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2d2RzZ3l2YnZxeHJvaGFjdmNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE2OTkyMTMsImV4cCI6MjA2NzI3NTIxM30.F4MapgSz5MlH1Ye9uNndZQGTy0b5oVzXb4co5H-XzoI";
+
+        let supabase;
+        let currentUser = null;
+        let userProfile = null;
+
+        async function initializeSupabase() {
+            try {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log('✅ Supabase initialized for confirmation page');
+            } catch (error) {
+                console.error('Failed to initialize Supabase:', error);
+            }
+        }
+
+        async function checkUserAndDisplayInfo() {
+            if (!supabase) return;
+
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session && session.user) {
+                    currentUser = session.user;
+                    
+                    // Get user profile
+                    const { data: profile, error } = await supabase
+                        .from('user_profiles')
+                        .select('*')
+                        .eq('user_id', currentUser.id)
+                        .single();
+
+                    if (profile) {
+                        userProfile = profile;
+                        updatePageContent();
+                    } else {
+                        console.log('No profile found, user might need to complete setup');
+                        showGenericSuccess();
+                    }
+                } else {
+                    showGenericSuccess();
+                }
+            } catch (error) {
+                console.error('Error checking user:', error);
+                showGenericSuccess();
+            }
+        }
+
+        function updatePageContent() {
+            if (!userProfile) return;
+
+            const role = userProfile.role;
+            const userName = userProfile.full_name || currentUser.email;
+
+            // Update account type message
+            document.getElementById('account-type-message').textContent = 
+                `Your ${role} account has been successfully verified and is ready to use!`;
+
+            // Update welcome message
+            document.getElementById('welcome-message').textContent = `Welcome, ${userName}!`;
+
+            // Update role-specific content
+            const roleIcon = document.getElementById('role-icon');
+            const roleDescription = document.getElementById('role-description');
+            const nextSteps = document.getElementById('next-steps');
+
+            switch (role) {
+                case 'customer':
+                    roleIcon.className = 'fas fa-user text-white text-2xl';
+                    roleDescription.textContent = 'You can now browse restaurants, place orders, and track deliveries!';
+                    nextSteps.innerHTML = `
+                        <li>• Browse available restaurants</li>
+                        <li>• Add delivery addresses</li>
+                        <li>• Place your first order</li>
+                        <li>• Track deliveries in real-time</li>
+                    `;
+                    break;
+                case 'vendor':
+                    roleIcon.className = 'fas fa-store text-white text-2xl';
+                    roleDescription.textContent = 'Start managing your restaurant and receiving orders!';
+                    nextSteps.innerHTML = `
+                        <li>• Complete your business profile</li>
+                        <li>• Add menu items and prices</li>
+                        <li>• Set up business hours</li>
+                        <li>• Start receiving orders</li>
+                    `;
+                    break;
+                case 'rider':
+                    roleIcon.className = 'fas fa-motorcycle text-white text-2xl';
+                    roleDescription.textContent = 'Begin accepting delivery requests and earning money!';
+                    nextSteps.innerHTML = `
+                        <li>• Complete your rider profile</li>
+                        <li>• Verify your vehicle details</li>
+                        <li>• Go online to receive orders</li>
+                        <li>• Start earning with deliveries</li>
+                    `;
+                    break;
+            }
+        }
+
+        function showGenericSuccess() {
+            document.getElementById('role-description').textContent = 
+                'Your account is ready! Please sign in to access your dashboard.';
+            document.getElementById('next-steps').innerHTML = `
+                <li>• Sign in to your account</li>
+                <li>• Complete your profile</li>
+                <li>• Get started with Nzija</li>
+            `;
+        }
+
+        function goToDashboard() {
+            if (userProfile && userProfile.role) {
+                const role = userProfile.role;
+                window.location.href = `${role}/dashboard.html`;
+            } else {
+                window.location.href = 'auth.html';
+            }
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', async () => {
+            await initializeSupabase();
+            await checkUserAndDisplayInfo();
+        });
+    </script>
+</body>
+</html>

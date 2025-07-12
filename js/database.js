@@ -1,4 +1,3 @@
-
 class NzijaDatabase {
     constructor() {
         this.supabase = null;
@@ -11,7 +10,7 @@ class NzijaDatabase {
         try {
             const SUPABASE_URL = "https://avwdsgyvbvqxrohacvcq.supabase.co";
             const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2d2RzZ3l2YnZxeHJvaGFjdmNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE2OTkyMTMsImV4cCI6MjA2NzI3NTIxM30.F4MapgSz5MlH1Ye9uNndZQGTy0b5oVzXb4co5H-XzoI";
-            
+
             this.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             this.initialized = true;
             console.log('✅ Database initialized successfully');
@@ -223,7 +222,7 @@ class NzijaDatabase {
         if (!this.initialized) return null;
 
         let channel;
-        
+
         if (role === 'customer') {
             channel = this.supabase
                 .channel('customer-orders')
@@ -265,6 +264,44 @@ class NzijaDatabase {
         }
 
         return channel;
+    }
+
+    // Generate unique order ID
+    generateOrderId() {
+        const timestamp = Date.now();
+        const random = Math.random().toString(36).substring(2, 8).toUpperCase();
+        return `NZJ-${timestamp}-${random}`;
+    }
+
+    // Generate tracking code for orders
+    generateTrackingCode() {
+        const prefix = 'TRK';
+        const timestamp = Date.now().toString(36).toUpperCase();
+        const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+        return `${prefix}-${timestamp}-${random}`;
+    }
+
+    // Track order by tracking code
+    async trackOrderByCode(trackingCode) {
+        try {
+            const { data, error } = await this.supabase
+                .from('orders')
+                .select(`
+                    *,
+                    customer:user_profiles!customer_id(full_name, phone),
+                    vendor:user_profiles!vendor_id(full_name, business_name),
+                    rider:user_profiles!rider_id(full_name, phone)
+                `)
+                .eq('tracking_code', trackingCode)
+                .single();
+
+            if (error) throw error;
+
+            return { success: true, data };
+        } catch (error) {
+            console.error('Error tracking order:', error);
+            return { success: false, error: error.message };
+        }
     }
 }
 

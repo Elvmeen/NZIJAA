@@ -451,7 +451,11 @@
                                 is_active: true
                             });
 
-                            showSuccessMessage('Account created! Please check your email to confirm your account before signing in.');
+                            showSuccessMessage('Account created! Please check your email to confirm your account.');
+                            
+                            // Store user data for confirmation page
+                            localStorage.setItem('pendingUserRole', selectedRole);
+                            localStorage.setItem('pendingUserName', name);
                             
                             // Clear form and switch to signin
                             document.getElementById('auth-form').reset();
